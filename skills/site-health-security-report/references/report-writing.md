@@ -53,7 +53,11 @@ carries the procedure in plain steps: where to go, what to click,
 back up first where the change can break the site, what to check
 afterwards, and what to do if it breaks. The tool's own grade-cause
 strings are glossed into plain language in the edition, never
-printed raw at a non-technical reader. Close the loop:
+printed raw at a non-technical reader. Example: the tool's "no
+verified backup of the site itself" becomes "we do not have a
+backup of the website that we know can be restored, so if the
+site broke badly we might not be able to bring it back."
+Close the loop:
 each edition states what happened to last edition's recommendations,
 from evidence, one line per item in the Follow-up block, with one of
 four outcomes: done, in progress, no movement, or withdrawn (by a

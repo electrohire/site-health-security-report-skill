@@ -1,0 +1,43 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 ElectroHire Inc.
+# Gitea Actions pipeline for the fallback scanning stack
+# (OSV-Scanner, Semgrep, gitleaks): the Gitea counterpart of the
+# Bitbucket and Azure pipeline templates. Place as
+# .gitea/workflows/site-health-scanning.yml in the repository.
+# The scan outputs are uploaded as run artifacts; the report
+# reads them through the Gitea API (see references/adapters-codehost.md).
+name: site-health-scanning
+on:
+  push:
+  schedule:
+    - cron: "17 5 * * *"
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: OSV-Scanner (dependencies)
+        run: |
+          curl -sL -o osv-scanner https://github.com/google/osv-scanner/releases/download/v2.0.1/osv-scanner_linux_amd64
+          chmod +x osv-scanner
+          ./osv-scanner --recursive --output-file=osv-report.json . || true
+      - name: Semgrep (SAST)
+        run: |
+          pip install semgrep
+          semgrep --config auto --json --output semgrep-report.json . || true
+      - name: gitleaks (secrets)
+        run: |
+          curl -sL -o gitleaks.tar.gz https://github.com/gitleaks/gitleaks/releases/download/v8.24.3/gitleaks_8.24.3_linux_x64.tar.gz
+          tar -xzf gitleaks.tar.gz gitleaks
+          ./gitleaks git --report-format json --report-path gitleaks-report.json . || true
+      - name: Upload scan reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-health-scans
+          path: |
+            osv-report.json
+            semgrep-report.json
+            gitleaks-report.json
+          retention-days: 30

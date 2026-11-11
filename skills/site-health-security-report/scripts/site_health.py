@@ -399,6 +399,10 @@ def grade_security(f):
                                   or cert_days in (float("inf"), float("-inf"))):
         raise InputError(f"security.cert_days_left must be a finite number or null, "
                          f"got {cert_days!r}")
+    if cert_days is not None and abs(cert_days) > 36500:
+        raise InputError(f"security.cert_days_left is {cert_days}, outside any "
+                         f"plausible certificate lifetime (plus or minus 100 "
+                         f"years); the measurement is wrong, not the site")
     cert_cause = None
     if cert_days is not None and cert_days < 0:
         cert_cause = f"the TLS certificate expired {-cert_days:g} day(s) ago"
@@ -688,6 +692,40 @@ def _validate_config(cfg):
                                or not _EMAIL_RE.search(sender)):
         errors.append("sender must contain an email address (a bare name "
                       "cannot send)")
+    repos = cfg.get("repositories")
+    if repos is not None and (not isinstance(repos, list)
+                              or any(not isinstance(r, str) or not r.strip()
+                                     for r in repos)):
+        errors.append("repositories must be a list of repository paths "
+                      "(strings)")
+    hosts = cfg.get("side_hosts")
+    if hosts is not None:
+        bad_host = not isinstance(hosts, list)
+        if not bad_host:
+            for h in hosts:
+                if not isinstance(h, dict) \
+                        or not isinstance(h.get("host"), str) \
+                        or not h.get("host", "").strip():
+                    bad_host = True
+                    break
+        if bad_host:
+            errors.append("side_hosts must be a list of {host, role} "
+                          "objects, each with a host (the burst rule "
+                          "segments errors by them)")
+    owners = cfg.get("owners")
+    if owners is not None and (not isinstance(owners, dict)
+                               or any(not isinstance(v, str)
+                                      for v in owners.values())):
+        errors.append("owners must be an object mapping roles to names "
+                      "(strings)")
+    staging = cfg.get("staging")
+    if staging is not None and not isinstance(staging, (dict, str)):
+        errors.append("staging must be an object describing the staging "
+                      "setup, or the string 'none'")
+    for field in ("hosting", "schedule", "sending_route", "edge_tier",
+                  "code_host_ci"):
+        if cfg.get(field) is not None and not isinstance(cfg[field], str):
+            errors.append(f"{field} must be a string")
     items = cfg.get("standing_items")
     if items is not None and (not isinstance(items, list)
                               or any(not isinstance(x, str) or not x.strip()
@@ -808,9 +846,9 @@ SUBGRADES_LINE = re.compile(
 # grade C"). Patterns are anchored to line starts so ordinary prose
 # mentioning a grade is not mistaken for a section verdict.
 SECTION_GRADE_PATTERNS = [
-    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*traffic\s*(?:&|and|-)[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
-    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*seo\s*(?:/|&|and|-)\s*aeo[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
-    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*security\s*(?:&|and|-)[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
+    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?traffic\s*(?:&|and|-)[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
+    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?seo\s*(?:/|&|and|-)\s*aeo[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
+    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?security\s*(?:&|and|-)[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
 ]
 # The first grade stated on a heading-shaped line governs that section:
 # no tail discipline (rounds 9-11 showed every tail rule has a depth or
@@ -818,11 +856,11 @@ SECTION_GRADE_PATTERNS = [
 # has none). The END set is the same rule for headings without a
 # separator before 'grade'.
 SECTION_GRADE_PATTERNS_END = [
-    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*traffic\s*(?:&|and|-)[^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
-    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*seo\s*(?:/|&|and|-)\s*aeo[^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
-    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*security\s*(?:&|and|-)[^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
+    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?traffic\s*(?:&|and|-)[^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
+    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?seo\s*(?:/|&|and|-)\s*aeo[^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
+    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?security\s*(?:&|and|-)[^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
 ]
-OVERALL_PATTERN = re.compile(r"overall grade:\s*([A-Fa-f])\b")
+OVERALL_PATTERN = re.compile(r"overall grade:?\s*([A-Fa-f])\b")
 CORRECTED_OVERALL_PATTERN = re.compile(r"corrected overall grade is\s+([A-Fa-f])\b")
 CORRECTED_GRADES_LINE = re.compile(
     r"corrected grades:[^\n]*?traffic\s*(?:&|and)\s*reliability\s+([A-Fa-f]|not available)\b"
@@ -913,15 +951,23 @@ def validate_report(text, findings=None, kind="edition"):
                     problems.append(f"sub-grade mismatch: findings compute {key} "
                                     f"{want_grade or 'not available'}, a Sub-grades "
                                     f"line states {stated or 'not available'}")
-        for pat_key, pattern in SECTION_GRADE_PATTERNS + SECTION_GRADE_PATTERNS_END:
+        all_patterns = SECTION_GRADE_PATTERNS + SECTION_GRADE_PATTERNS_END
+        for pat_key in keys:
             want_grade = expected[pat_key]
+            found = [g for k, pattern in all_patterns if k == pat_key
+                     for g in pattern.findall(low)]
             if want_grade is None:
-                if pattern.findall(low):
+                if found:
                     problems.append(f"section grade contradiction: the {pat_key} "
                                     f"section states a letter grade, but the leg "
                                     f"is ungraded (not available)")
                 continue
-            for g in pattern.findall(low):
+            if not found:
+                problems.append(f"missing section grade line: the {pat_key} "
+                                f"section heading must state its grade "
+                                f"(the template puts the grade on each section "
+                                f"heading)")
+            for g in found:
                 if g.upper() != want_grade:
                     problems.append(f"section grade contradiction: the {pat_key} "
                                     f"section states grade {g.upper()}, findings "
@@ -1380,6 +1426,8 @@ def _load_json(path):
                          f"to be a config or findings file")
     except json.JSONDecodeError as e:
         raise InputError(f"invalid JSON in {path}: {e}")
+    except ValueError as e:
+        raise InputError(f"invalid JSON in {path}: {e}")
     if not isinstance(data, dict):
         raise InputError(f"{path} must contain a JSON object")
     return data
@@ -1415,6 +1463,24 @@ def main(argv):
         cmd = argv[1]
         if cmd == "headers" and len(argv) == 3:
             result = check_headers(fetch_headers(argv[2]))
+            print(json.dumps(result, indent=2))
+            return 0 if result["csp"] == "enforcing" else 1
+        if cmd == "headers" and len(argv) == 4 and argv[2] == "--file":
+            try:
+                saved = open(argv[3], encoding="utf-8-sig").read()
+            except FileNotFoundError:
+                raise InputError(f"file not found: {argv[3]}")
+            except (OSError, UnicodeDecodeError) as e:
+                raise InputError(f"cannot read {argv[3]}: {e}")
+            saved_headers = {}
+            for line in saved.splitlines():
+                if ":" in line:
+                    name, value = line.split(":", 1)
+                    if name.strip():
+                        saved_headers[name.strip()] = value.strip()
+            if not saved_headers:
+                raise InputError(f"no 'Name: value' header lines in {argv[3]}")
+            result = check_headers(saved_headers)
             print(json.dumps(result, indent=2))
             return 0 if result["csp"] == "enforcing" else 1
         if cmd == "grade" and len(argv) == 3:

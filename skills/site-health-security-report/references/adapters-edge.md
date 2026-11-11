@@ -84,12 +84,18 @@ to get them, and what DDoS controls to check, per provider.
 ## Fastly
 
 - Analytics: the Fastly Stats API (historical and real-time) gives
-  totals and status mixes per service; the per-host/per-address cuts
+  totals and status mixes per service (`GET /stats/aggregate` with
+  `by=hour` for a covering period); the per-host/per-address cuts
   the burst rule needs come from log streaming to your own store
   (S3, BigQuery, or a log platform), with a log format that includes
-  the host, client IP, status, and request path. Credential: a Fastly
-  API token with read-only (global read) scope on the one service,
-  recorded by location in the config.
+  the host, client IP, status, and request path, for example:
+  `{"host":"%{req.http.Host}V","ip":"%a","status":%s,"path":"%U"}`.
+  After configuring the stream, read one delivered record and
+  confirm every field the burst rule needs is actually in it: a
+  stream missing the host field cannot segment, and the edition
+  that discovers that is a classification-pending edition.
+  Credential: a Fastly API token with read-only (global read)
+  scope on the one service, recorded by location in the config.
 - Record the plan in the config's `edge_tier`: the Next-Gen WAF is a
   separately licensed product, so the tier decides the `edge_posture`
   finding.

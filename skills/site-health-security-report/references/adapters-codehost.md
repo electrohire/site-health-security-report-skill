@@ -110,7 +110,17 @@ and no native secret scanning.** What exists:
   Codeberg (Codeberg does not run Gitea Actions for all projects; the
   intake records which CI the instance actually has). Renovate
   (self-hosted) covers dependency update PRs; detection counts come
-  from OSV-Scanner in CI.
+  from OSV-Scanner in CI. Record OSV-Scanner as the dependencies
+  scanner, not Renovate: Renovate opens the update PRs, OSV produces
+  the counts the leg grades.
+- Read paths (the Gitea API, token with read scope recorded by
+  location): workflow runs at `GET /repos/{owner}/{repo}/actions/runs`,
+  their artifacts at `GET /repos/{owner}/{repo}/actions/runs/{id}/artifacts`
+  (the scan outputs the pipeline uploaded; the shipped
+  `templates/gitea-actions.example.yml` shows the wiring), commit
+  activity at `GET /repos/{owner}/{repo}/commits`. Scanner existence
+  at sign-off is verified from a run's artifact list, the same
+  standard as every other host.
 
 ## Any other code host
 

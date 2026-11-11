@@ -118,6 +118,28 @@ with evidence pointers). The sender runs only on a full pass.
   Switching accounts or routes mid-incident is how duplicates and
   wrong-sender sends happen.
 
+## Sending, per route
+
+The send itself is one call through the config's route, made by
+the operator (or the agent's mail tool for that account), never a
+hand-rolled SMTP script:
+
+- The idempotency key travels with the send where the provider
+  supports it: Resend accepts an `Idempotency-Key` header; SES,
+  SendGrid, and Microsoft 365 have no equivalent for a single
+  send, so there the discipline is the control: check the send
+  log for the key before sending, send once, and verify from the
+  provider's response before doing anything else.
+- The provider's accepted id comes from that call's response
+  (Resend and SendGrid return a message id; SES returns a
+  MessageId; Microsoft 365's send returns success and the message
+  is verified in the account's Sent Items). It is appended to the
+  send log with the key, the send time, and the subject.
+- The send log is one JSON object per line with at least the
+  fields `key`, `sent_at`, `provider_id`, `subject`. A line that
+  cannot be produced from a real provider response is not
+  written: an unsent edition has no line.
+
 ## Backup and recovery
 
 Two loss grades: if the off-machine copies survive, recovery is

@@ -12,7 +12,7 @@ This is a daily health and security report method designed by
 ElectroHire, generalized to any stack, published as an open agent
 skill.
 
-**Status: pre-release, version 0.26.0.** The skill is public for review
+**Status: pre-release, version 0.27.0.** The skill is public for review
 and is being iterated against red teams and simulated stacks until a
 complete verification round finds no issues. The first release will be
 v1.0.0; versioning is semantic from that release, with a changelog
@@ -72,8 +72,9 @@ the skill itself.
    Answer the twelve questions.
 3. The agent saves your config from
    `skills/site-health-security-report/templates/config.example.json`.
-4. Ask for the first edition, review it, then schedule it (the skill
-   covers scheduling and exactly-once sending).
+4. Ask for the first edition and approve it before it sends; then
+   schedule the run (the skill covers scheduling and exactly-once
+   sending).
 
 ## Repository layout
 
