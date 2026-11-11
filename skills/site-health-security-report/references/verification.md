@@ -16,7 +16,8 @@ effect. The signed-off config is the standing authorization for
 scheduled editions under it; nothing outside it (a new recipient, a new
 route, a one-off extra send) is authorized, with one exception stated
 here: the incident note. When an edition's findings confirm an outage,
-an F grade, or a critical vulnerability under active exploitation in
+an F grade, a confirmed compromise of the site, or a critical
+vulnerability under active exploitation in
 the product (a platform component counts), a short incident note to
 the config's recipients,
 through the config's sending route, is authorized by the same
@@ -164,6 +165,27 @@ improvisation:
    that needs it says so.
 6. An edition sent late the same day says so in WHAT CHANGED; the
    covering period is not skipped.
+
+## Compromise response (minimum)
+
+The report detects vulnerabilities; it does not detect compromise.
+When a compromise is confirmed (by the owner, the host, or the
+platform), it is recorded as a standing item and in findings
+(`compromise_confirmed`), and the response minimum is:
+
+1. Preserve before touching: download the current backup and the
+   available logs first — a suspension or cleanup can take them
+   away, and the entry-point evidence lives in them.
+2. Rotate every credential the compromise could have reached:
+   platform admin, hosting account, database, edge, and the sending
+   account.
+3. Restore from a point that predates the earliest compromise
+   evidence, not the newest backup; a backup taken inside the
+   compromise window restores the compromise.
+4. After the restore, re-read the platform versions and re-run the
+   edition's legs; the item closes on that evidence, or by the
+   owner's recorded decision where no leg can produce the evidence
+   (see the standing-item rule in stack-intake.md).
 
 ## Operator handover
 

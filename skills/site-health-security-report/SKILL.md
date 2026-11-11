@@ -171,7 +171,8 @@ Full discipline: `references/verification.md` and
    log), never from a sent-items folder the route does not use.
 5. Corrections are sends too: same gate, same validation, same recipients
    copied from the config, never re-typed.
-6. An F grade, a confirmed outage, or a critical vulnerability under
+6. An F grade, a confirmed outage, a confirmed compromise of the
+   site, or a critical vulnerability under
    active exploitation in the product (a platform component counts)
    does not wait for the schedule:
    the owner is told the same day through the config's route (an

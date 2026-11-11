@@ -354,6 +354,11 @@ def grade_security(f):
     if exploit:
         grade = "F"
         causes.append("a critical alert with a public exploit affects production")
+    if f.get("compromise_confirmed"):
+        _req_bool(f, "compromise_confirmed", "security")
+        grade = "F"
+        causes.append("a compromise of the site was confirmed this period "
+                      "(content, account, or platform integrity breached)")
     critical = f.get("critical")
     high = f.get("high")
     platform = f.get("platform")
@@ -488,6 +493,12 @@ def grade_traffic(f):
     if outage:
         causes = ["the primary host was confirmed down (burst record: primary host "
                   "carried at least half the errors, no single client dominating)"]
+        note = f.get("outage_note")
+        if note is not None:
+            if not isinstance(note, str) or not note.strip():
+                raise InputError("traffic.outage_note must be a non-empty "
+                                 "string when present")
+            causes.append(f"recorded cause: {note}")
         if f.get("repeated_reliability_problems"):
             _req_bool(f, "repeated_reliability_problems", "traffic")
             causes.append("reliability problems repeated across days")

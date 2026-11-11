@@ -32,8 +32,9 @@ are not measurements.
 | `four_04_share` | number 0–1 | Residual "not found" share of requests, after burst segmentation like the 5xx share (a burst's probing 404s are attributed away with its 5xx) |
 | `outage_confirmed` | boolean | True only when the burst rule classifies the day as a primary-host outage and the primary host was actually down |
 | `classification_pending` | boolean, optional | True when an error spike's segmentation was unavailable at send time: no burst record, the traffic leg is not graded, and the overall is incomplete until the classification lands |
+| `outage_note` | string, optional | The recorded cause of a confirmed outage when it is not an origin failure (host suspension, provider action, billing): carried into the edition's cause line. An administratively caused outage does not count toward `repeated_reliability_problems` |
 | `burst` | object, required when a burst was segmented | The segmentation record (`total_errors`, `top_single_ip_errors`, `primary_host_errors`, `top_single_host_errors`). The grader classifies it and requires the classification to agree with `outage_confirmed`; an outage claim without the record is an input error |
-| `repeated_reliability_problems` | boolean, optional | True when the residual (post-segmentation) share exceeded the B band in at least 2 of the last 7 editions including the current one (the run records are the evidence; an outage day counts, a reclassified burst does not) |
+| `repeated_reliability_problems` | boolean, optional | True when the residual (post-segmentation) share exceeded the B band in at least 2 of the last 7 editions including the current one (the run records are the evidence; an outage day counts, a reclassified burst does not, and an administratively caused outage — host suspension, billing — does not) |
 
 ## seo_aeo
 
@@ -72,6 +73,7 @@ the cause named, rather than inventing a zero.
 | `scanners_used` | object | The scanner that actually produced each kind's counts, by config vocabulary name (`dependencies` / `sast` / `secrets`). `check-run` requires it to name the configured scanner for every kind that carries evidence (the `*_on` flag for sast/secrets, measured alert counts for dependencies): a fallback's output is read as the fallback's, never under the native scanner's name |
 | `secret_alerts_open` | int ≥ 0 | Open secret-scanning alerts |
 | `critical_public_exploit_in_production` | boolean | The F condition |
+| `compromise_confirmed` | boolean, optional | A compromise of the site (defaced or altered content, account takeover, injected code) confirmed this period by the owner, the host, or the platform. Security F. The report does not detect compromise itself; confirmation arrives as a record, like a platform advisory |
 | `csp` | `"enforcing"` / `"report-only"` / `"missing"`, required | From the header check, value-inspected |
 | `observatory_grade` | letter (any case) or null | Mozilla Observatory |
 | `ssl_grade` | letter (any case) or null | SSL Labs |

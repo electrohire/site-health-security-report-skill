@@ -119,4 +119,7 @@ discipline as sign-off:
    that edition states the evidence, and the entry is annotated
    `closed <date>` in the config, never deleted. The date is the
    closing edition's covering date. Adding an item mid-run is not an
-   amendment and needs no approval; record it in the run log.
+   amendment and needs no approval; record it in the run log. An
+   event-type item whose closure evidence no leg can produce (an
+   incident's entry point, for example) may be closed by the owner's
+   recorded decision, with the edition stating that basis.
