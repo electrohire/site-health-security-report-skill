@@ -96,7 +96,9 @@ applies to a weekly edition's per-day figures) — for a daily deployment
 that is the previous seven editions; for a weekly deployment it is
 the previous edition's covering week, and the line prints it as a
 per-day figure beside the week's own daily average, never as a
-"7-day average" of edition totals. With less history it is the mean
+"7-day average" of edition totals; for a monthly deployment it is
+the previous edition's covering month, printed the same way, as a
+per-day figure beside the month's own daily average. With less history it is the mean
 of the covering days available, and the template line says so.
 Unique visitors and page views compare against the previous edition
 ("yesterday" at daily cadence, "last week" at weekly, "last month"

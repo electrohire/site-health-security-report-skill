@@ -6,13 +6,13 @@ SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-A daily (or weekly) health and security report for any website, produced
+A daily (or weekly, or monthly) health and security report for any website, produced
 by an AI agent, graded A to F, in plain language an owner can act on.
 This is a daily health and security report method designed by
 ElectroHire, generalized to any stack, published as an open agent
 skill.
 
-**Status: pre-release, version 0.31.0.** The skill is public for review
+**Status: pre-release, version 0.32.0.** The skill is public for review
 and is being iterated against red teams and simulated stacks until a
 complete verification round finds no issues. The first release will be
 v1.0.0; versioning is semantic from that release, with a changelog

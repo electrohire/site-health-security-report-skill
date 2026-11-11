@@ -67,6 +67,6 @@ for a non-technical reader. -->
 3. ({{owner}}) {{recommendation_3}}
 
 Follow-up on last edition's recommendations (one line per item):
-- {{follow_up_item_1}} — done / in progress / no movement / withdrawn (by the correction of {{date}}) (evidence: {{evidence}})
-- {{follow_up_item_2}} — done / in progress / no movement / withdrawn (evidence: {{evidence}})
+- {{follow_up_item_1}} — done / in progress / no movement / withdrawn (by the correction of {{date}}) / declined (owner decision of {{date}}) (evidence: {{evidence}})
+- {{follow_up_item_2}} — done / in progress / no movement / withdrawn / declined (evidence: {{evidence}})
 Standing items: {{standing_items_open}} open; closed this edition: {{standing_items_closed}} (annotate the config entry closed with the closing edition's covering date; never delete it).

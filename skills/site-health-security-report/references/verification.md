@@ -20,7 +20,9 @@ here: the incident note. When an edition's findings confirm an outage
 an F grade, a confirmed compromise of the site, or a critical
 vulnerability under active exploitation in
 the product (a platform component counts), a short incident note to
-the config's recipients,
+the config's recipients — this deployment's recipients only; one
+deployment's records are never disclosed to another's (SKILL.md,
+Multiple deployments) —
 through the config's sending route, is authorized by the same
 sign-off. It carries the idempotency key `incident-<date>` and a
 send-log line like any send; it is a note, not an edition, so it needs
@@ -107,7 +109,9 @@ with evidence pointers). The sender runs only on a full pass.
 ## Send discipline
 
 - Exactly once: an idempotency key per edition (`report-<date>`,
-  `correction-<date>`; the date is the covering period's end date —
+  `correction-<date>`; in a multiple-deployment setup the key
+  carries the deployment's folder name,
+  `report-<deployment>-<date>`; the date is the covering period's end date —
   for a weekly edition, its last covering day), checked against the send log before sending,
   matched on the key, never on the subject line (subjects embed the
   grade and can change between runs). The incident note follows the

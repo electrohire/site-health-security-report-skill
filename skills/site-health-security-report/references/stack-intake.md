@@ -59,7 +59,8 @@ report written without it has produced a real error somewhere.
    sending service on your own domain?
 10. What timezone should the report's covering period be computed in,
     and at what time should it arrive? (At weekly cadence, also record
-    the covering convention, e.g. Monday to Sunday.)
+    the covering convention, e.g. Monday to Sunday; at monthly
+    cadence, whether the covering period is the calendar month.)
 11. What display name and accent color should the report carry?
 12. Does the site run on an application platform whose own components
     update separately from the code (WordPress core and plugins, a

@@ -6,8 +6,8 @@ White-label HTML shell for the report email. The plain-text part built
 from report-template.md always rides along and must carry the same
 headline figures and grades; validation check 4 compares them.
 Brand values (name, accent color, logo) come from the config.
-{{cadence}} is "daily" or "weekly" (lowercase, as in the text part);
-{{cadence_title}} is the same word title-cased (Daily / Weekly).
+{{cadence}} is "daily", "weekly", or "monthly" (lowercase, as in the text part);
+{{cadence_title}} is the same word title-cased (Daily / Weekly / Monthly).
 -->
 <html lang="en">
 <head><meta charset="utf-8"><title>{{brand.display_name}} {{cadence}} report — {{date_short}}</title></head>
