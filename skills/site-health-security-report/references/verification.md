@@ -30,7 +30,10 @@ to act on it the same day, under the same rule as edition
 recommendations. The trigger is the event itself, confirmed by the
 day's saved records; it does not wait for an edition to be composed.
 The next edition reports it. A correction that changes a
-grade needs the owner's approval before sending.
+grade needs the owner's approval before sending, and so does
+one that changes only completeness (a pending leg graded, the
+overall letter unchanged): the headline the owner approved has
+changed even when its letter has not.
 
 ## Pre-send verification gate
 
@@ -69,7 +72,10 @@ grading it as if it were the residual is the failure this rule
 exists to prevent. When the segmentation lands, the flag clears, the
 edition is graded on the record, and a correction follows the same
 day if the story changes. Holding the edition silently is not an
-option.
+option. Segmentation that the edge cannot produce (a log stream
+missing a field, an unsegmentable edge) can come from the origin's
+own access logs, which carry the host and client address: name
+that source in the evidence record when it is used.
 
 ## Independent validation
 

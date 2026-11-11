@@ -51,7 +51,13 @@ scanner reporting levels beyond the four, such as GitLab's Info and
 Unknown): scanner "critical"/blocker findings count as
 `critical` only when they are exploitable in production as shipped;
 otherwise map error/blocker to `high`, warning to `medium`, info/note
-to `low`. Findings the scanner itself marks Unknown (no severity
+to `low`. OSV-Scanner records carry database severity instead of a
+word: when a CVSS score is present, map by score (9.0 and above
+critical, 7.0 and above high, 4.0 and above medium, below that
+low); when only an ecosystem rating word is present, map the word
+by the same rule as any scanner's. Each gitleaks finding is one
+open secret alert, graded by the secrets rules (a live-format
+credential is high; the critical rule is unchanged). Findings the scanner itself marks Unknown (no severity
 assigned) are excluded from the counts and disclosed in the report
 narrative and the derivation record. Record the mapping used in the
 evidence record. When no
@@ -106,3 +112,7 @@ with `site_health.py burst`: `total_errors`, `top_single_ip_errors`
 (errors from the single busiest client address), `primary_host_errors`,
 and `top_single_host_errors` (errors on the single busiest host, which
 is what separates a side-host probe event from a distributed failure).
+All four counts describe the burst itself (the spike window being
+segmented), not the whole covering period: the residual share in
+grading.md is the period's errors minus the burst's, over the
+period's requests, and mixing the two bases breaks that math.

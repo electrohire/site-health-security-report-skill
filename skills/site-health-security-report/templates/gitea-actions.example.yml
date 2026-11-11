@@ -22,11 +22,11 @@ jobs:
         run: |
           curl -sL -o osv-scanner https://github.com/google/osv-scanner/releases/download/v2.0.1/osv-scanner_linux_amd64
           chmod +x osv-scanner
-          ./osv-scanner --recursive --output-file=osv-report.json . || true
+          ./osv-scanner --recursive --format json --output-file=osv-report.json . || true
       - name: Semgrep (SAST)
         run: |
           pip install semgrep
-          semgrep --config auto --json --output semgrep-report.json . || true
+          semgrep scan --config auto --json --output semgrep-report.json . || true
       - name: gitleaks (secrets)
         run: |
           curl -sL -o gitleaks.tar.gz https://github.com/gitleaks/gitleaks/releases/download/v8.24.3/gitleaks_8.24.3_linux_x64.tar.gz
@@ -40,4 +40,4 @@ jobs:
             osv-report.json
             semgrep-report.json
             gitleaks-report.json
-          retention-days: 30
+          retention-days: 35

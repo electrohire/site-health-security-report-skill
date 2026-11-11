@@ -30,6 +30,8 @@ report written without it has produced a real error somewhere.
 | Tracked standing items | Named, dated items graded until verified closed (a production CVE, a cert renewal, a migration). |
 | Application platform (`app_platform`, optional) | A platform whose components update separately from the code (WordPress, a CMS): which platform, and the advisory source leg 3 reads. |
 | Site backups (`site_backups`, optional) | How the site itself is backed up and when a backup was last verified; feeds findings' `site_backups_verified`. |
+| Log stream (`log_stream`, optional) | Where the edge's logs stream to (destination, format, credential location): the segmentation source when the edge's own analytics cannot cut by host and address. |
+| SEO/AEO checkers (`seo_checkers`, optional) | Which checkers produce the leg-4 scores and scan ids, so the choice is recorded once, not re-decided per edition. |
 | Brand (white-label) | Display name, logo URL, accent color, sender display name for the HTML template. |
 
 ## Intake questions (ask verbatim, one short list)
@@ -77,7 +79,7 @@ first edition
 then treats closing that unknown as a recommendation. Note that the
 config validator requires the table's fields to be present (the optional
 extras are `code_host_instance`, `edge_tier`, `code_host_addons`,
-`app_platform`, `site_backups`, and
+`app_platform`, `site_backups`, `log_stream`, `seo_checkers`, and
 `code_host_ci` (the CI system the pipeline scanners run under, where
 the host offers a choice — Gitea Actions vs Woodpecker on Gitea),
 recorded when they apply): an honest "none" or a named placeholder

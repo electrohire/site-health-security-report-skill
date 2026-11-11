@@ -13,7 +13,7 @@ OVERALL GRADE: {{overall}}
 {{one_line_summary}}
 
 Sub-grades: Traffic & reliability {{traffic_grade}} · SEO/AEO {{seo_grade}} · Security & code health {{security_grade}}
-<!-- If a leg is ungraded, its slot reads "not available" instead of a letter, and the line above the grades must present the overall as incomplete: "OVERALL GRADE: {{overall}} (incomplete: {{ungraded_leg}} not available)". If the traffic leg ran at lower fidelity (no edge, or an edge that cannot segment), say so on its section line: "Fidelity: {{fidelity_note}}". -->
+<!-- If a leg is ungraded, its slot reads "not available" instead of a letter, and the line above the grades must present the overall as incomplete: "OVERALL GRADE: {{overall}} (incomplete: {{ungraded_leg}} not available)". An ungraded leg's section heading reads "## {{SECTION}} — grade not available", and its cause line states the reason in plain words (for traffic: the error spike is reported, its classification is pending, and a correction will follow). If the traffic leg ran at lower fidelity (no edge, or an edge that cannot segment), say so on its section line: "Fidelity: {{fidelity_note}}". -->
 {{#each downgrade_causes}}Why a {{grade}}: {{cause}} <!-- one line per cause the grading tool returned; for a leg graded A, print "no downgrade causes" instead of a Why-a line -->
 {{/each}}
 

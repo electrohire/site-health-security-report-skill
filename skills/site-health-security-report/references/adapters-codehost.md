@@ -113,13 +113,17 @@ and no native secret scanning.** What exists:
   from OSV-Scanner in CI. Record OSV-Scanner as the dependencies
   scanner, not Renovate: Renovate opens the update PRs, OSV produces
   the counts the leg grades.
-- Read paths (the Gitea API, token with read scope recorded by
-  location): workflow runs at `GET /repos/{owner}/{repo}/actions/runs`,
-  their artifacts at `GET /repos/{owner}/{repo}/actions/runs/{id}/artifacts`
-  (the scan outputs the pipeline uploaded; the shipped
-  `templates/gitea-actions.example.yml` shows the wiring), commit
-  activity at `GET /repos/{owner}/{repo}/commits`. Scanner existence
-  at sign-off is verified from a run's artifact list, the same
+- Read paths (the Gitea API, under `{instance}/api/v1`, with the
+  header `Authorization: token <token>`; the token has read scope
+  and is recorded by location): workflow runs at
+  `GET /repos/{owner}/{repo}/actions/runs`, a run's artifacts at
+  `GET /repos/{owner}/{repo}/actions/runs/{id}/artifacts`, and the
+  artifact itself as a zip at
+  `GET /repos/{owner}/{repo}/actions/artifacts/{artifact_id}/zip` —
+  download it and read the scan JSONs inside; the list alone proves
+  existence, not counts. Commit activity at
+  `GET /repos/{owner}/{repo}/commits`. Scanner existence at
+  sign-off is verified from a run's artifact list, the same
   standard as every other host.
 
 ## Any other code host

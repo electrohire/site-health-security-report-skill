@@ -10,6 +10,8 @@
   "code_host_ci": "github-actions",
   "app_platform": "none",
   "site_backups": "nightly host backups, restore verified 2026-10-15",
+  "log_stream": "none",
+  "seo_checkers": "check.aeojs.org (AEO) and Google PageSpeed Insights (SEO)",
   "edge_credential": "location only, never the value: vault entry 'example-co/cloudflare-analytics' (read-only, zone-scoped)",
   "edge_provider": "cloudflare",
   "edge_tier": "free",

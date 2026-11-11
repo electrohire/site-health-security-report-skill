@@ -80,10 +80,12 @@ silently.
    as tracked-until-closed (a CVE in production, a certificate expiring, a
    migration). Dropped only when verified closed.
 5. **Website security scans (public, no account needed).** Mozilla
-   Observatory grade, SSL Labs TLS grade and certificate expiry, the six
+   Observatory grade (observatory.mozilla.org), SSL Labs TLS grade
+   and certificate expiry (ssllabs.com/ssltest), the six
    security headers (an enforcing Content-Security-Policy counts; a
    report-only one does not), HTTP-to-HTTPS redirect, and email
-   authentication (SPF, DMARC policy, MX). DDoS posture for the site and
+   authentication (SPF, DMARC policy, MX — read from the domain's
+   DNS TXT/MX records with any DNS lookup tool). DDoS posture for the site and
    the API is covered in `references/ddos.md`.
 6. **Privacy & AI compliance spot checks (publicly checkable only).**
    Privacy policy names the correct legal entity as controller, covers
@@ -159,6 +161,15 @@ request, log it in the requesting deployment's records without
 naming the other deployment, and offer only what the requesting
 deployment's own records support. Disclosure requires the other
 owner's recorded consent, given for that disclosure.
+
+## Scheduling
+
+The operator schedules the run with their agent's scheduler or
+cron, at the config's cadence and timezone; the scheduled job's
+body is this skill's invocation plus the deployment's config
+path, and it sends nothing the signed-off config does not
+authorize. Scheduling is a standing act under the config, not a
+new approval per edition.
 
 ## Write, verify, validate, then send
 

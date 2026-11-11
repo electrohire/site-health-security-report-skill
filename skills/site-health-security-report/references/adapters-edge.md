@@ -96,6 +96,10 @@ to get them, and what DDoS controls to check, per provider.
   that discovers that is a classification-pending edition.
   Credential: a Fastly API token with read-only (global read)
   scope on the one service, recorded by location in the config.
+  The Stats API carries no unique visitors and no country cut:
+  uniques come from the log store (distinct client addresses), and
+  countries only if the log format carries a geo field; otherwise
+  both print as not available, never estimated.
 - Record the plan in the config's `edge_tier`: the Next-Gen WAF is a
   separately licensed product, so the tier decides the `edge_posture`
   finding.

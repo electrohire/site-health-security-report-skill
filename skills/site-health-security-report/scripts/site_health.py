@@ -581,7 +581,7 @@ NON_NATIVE_HOSTS = {"bitbucket", "azure-devops", "gitea", "codeberg"}
 KNOWN_CONFIG_KEYS = set(REQUIRED_CONFIG_FIELDS) | {
     "code_host_instance", "code_host_addons", "code_host_access",
     "code_host_ci", "edge_tier", "notes", "app_platform",
-    "site_backups"}
+    "site_backups", "log_stream", "seo_checkers"}
 
 # Recognized scanning vocabulary. Anything else is rejected: an invented
 # tool name in the config would otherwise certify coverage that does not
@@ -723,9 +723,29 @@ def _validate_config(cfg):
         errors.append("staging must be an object describing the staging "
                       "setup, or the string 'none'")
     for field in ("hosting", "schedule", "sending_route", "edge_tier",
-                  "code_host_ci"):
+                  "code_host_ci", "site_name", "code_host_access",
+                  "edge_credential", "app_platform", "site_backups",
+                  "log_stream", "seo_checkers"):
         if cfg.get(field) is not None and not isinstance(cfg[field], str):
             errors.append(f"{field} must be a string")
+    brand = cfg.get("brand")
+    if brand is not None:
+        if not isinstance(brand, dict):
+            errors.append("brand must be an object (display_name, "
+                          "accent_color, logo_url)")
+        elif brand.get("display_name") is not None \
+                and not isinstance(brand["display_name"], str):
+            errors.append("brand.display_name must be a string")
+    if isinstance(hosts, list):
+        for h in hosts:
+            if isinstance(h, dict) and h.get("role") is not None \
+                    and not isinstance(h["role"], str):
+                errors.append("side_hosts entries' role must be a string")
+                break
+    if isinstance(staging, dict) \
+            and any(not isinstance(v, str) for v in staging.values()):
+        errors.append("staging values must be strings (branch, url, "
+                      "promotion)")
     items = cfg.get("standing_items")
     if items is not None and (not isinstance(items, list)
                               or any(not isinstance(x, str) or not x.strip()
@@ -838,17 +858,17 @@ REQUIRED_SECTIONS = ["traffic", "seo", "security &", "website security scans",
 # shape; prose mentions elsewhere in the document do not satisfy it.
 # EVERY such line is checked: a second, contradictory line is a defect.
 SUBGRADES_LINE = re.compile(
-    r"sub-grades:[^\n]*?traffic\s*(?:&|and)\s*reliability\s+([A-Fa-f]|not available)\b"
-    r"[^\n]*?seo\s*(?:/|&|and|-)\s*aeo\s+([A-Fa-f]|not available)\b"
-    r"[^\n]*?security\s*(?:&|and)\s*code health\s+([A-Fa-f]|not available)\b")
+    r"sub-?grades\s*[:—–-]?\s*[^\n]*?traffic\s*(?:&|and)\s*reliability\s*:?\s+([A-Fa-f]|not available)\b"
+    r"[^\n]*?seo\s*(?:/|&|and|-)\s*aeo\s*:?\s+([A-Fa-f]|not available)\b"
+    r"[^\n]*?security\s*(?:&|and)\s*code health\s*:?\s+([A-Fa-f]|not available)\b")
 # The template's per-section grade lines are headings ("## TRAFFIC & X --
 # grade A", "## SEO / AEO -- grade B", "## SECURITY & CODE HEALTH --
 # grade C"). Patterns are anchored to line starts so ordinary prose
 # mentioning a grade is not mistaken for a section verdict.
 SECTION_GRADE_PATTERNS = [
-    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?traffic\s*(?:&|and|-)[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
-    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?seo\s*(?:/|&|and|-)\s*aeo[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
-    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?security\s*(?:&|and|-)[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
+    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?traffic\s*(?:&|and|-|:|\s|—|–)[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
+    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?seo(?:\s*(?:/|&|and|-)\s*aeo)?[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
+    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?security\s*(?:&|and|-|:|\s|—|–)[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
 ]
 # The first grade stated on a heading-shaped line governs that section:
 # no tail discipline (rounds 9-11 showed every tail rule has a depth or
@@ -856,11 +876,17 @@ SECTION_GRADE_PATTERNS = [
 # has none). The END set is the same rule for headings without a
 # separator before 'grade'.
 SECTION_GRADE_PATTERNS_END = [
-    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?traffic\s*(?:&|and|-)[^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
-    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?seo\s*(?:/|&|and|-)\s*aeo[^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
-    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?security\s*(?:&|and|-)[^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
+    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?traffic\s*(?:&|and|-|:|\s|—|–)[^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
+    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?seo(?:\s*(?:/|&|and|-)\s*aeo)?[^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
+    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?security\s*(?:&|and|-|:|\s|—|–)[^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
 ]
-OVERALL_PATTERN = re.compile(r"overall grade:?\s*([A-Fa-f])\b")
+SECTION_GRADE_PATTERNS_BARE = [
+    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?traffic\s*(?:&|and|-|:|\s|—|–)[^\n]*?[—–:·-]\s*([A-Fa-f])\s*(?:</h[1-6]>)?\s*$")),
+    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?seo(?:\s*(?:/|&|and|-)\s*aeo)?[^\n]*?[—–:·-]\s*([A-Fa-f])\s*(?:</h[1-6]>)?\s*$")),
+    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?security\s*(?:&|and|-|:|\s|—|–)[^\n]*?[—–:·-]\s*([A-Fa-f])\s*(?:</h[1-6]>)?\s*$")),
+]
+OVERALL_PATTERN = re.compile(
+    r"overall grade\s*(?::|=|—|–|-)?\s*(?:is\s+)?(?:<[^>]+>\s*)?([A-Fa-f])\b")
 CORRECTED_OVERALL_PATTERN = re.compile(r"corrected overall grade is\s+([A-Fa-f])\b")
 CORRECTED_GRADES_LINE = re.compile(
     r"corrected grades:[^\n]*?traffic\s*(?:&|and)\s*reliability\s+([A-Fa-f]|not available)\b"
@@ -951,7 +977,8 @@ def validate_report(text, findings=None, kind="edition"):
                     problems.append(f"sub-grade mismatch: findings compute {key} "
                                     f"{want_grade or 'not available'}, a Sub-grades "
                                     f"line states {stated or 'not available'}")
-        all_patterns = SECTION_GRADE_PATTERNS + SECTION_GRADE_PATTERNS_END
+        all_patterns = (SECTION_GRADE_PATTERNS + SECTION_GRADE_PATTERNS_END
+                        + SECTION_GRADE_PATTERNS_BARE)
         for pat_key in keys:
             want_grade = expected[pat_key]
             found = [g for k, pattern in all_patterns if k == pat_key
@@ -1474,6 +1501,8 @@ def main(argv):
                 raise InputError(f"cannot read {argv[3]}: {e}")
             saved_headers = {}
             for line in saved.splitlines():
+                if not line.strip():
+                    break  # the header block ends at the first blank line
                 if ":" in line:
                     name, value = line.split(":", 1)
                     if name.strip():
