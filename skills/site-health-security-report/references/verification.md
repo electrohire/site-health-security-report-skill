@@ -40,7 +40,7 @@ and stated as not available, before sending. The gate's result (figures
 checked, corrected, dropped) is logged in the run log. Records are
 checked for internal freshness: a file's name or existence is not
 evidence; its internal date or requested window must match the covering
-day.
+period.
 
 ## Independent validation
 
@@ -55,8 +55,8 @@ the primary records in a separate pass and label the validation record
 1. Re-derive totals, shares, and all grades from the primary records.
 2. Confirm checker results first-hand on the checker's own pages
    (identifier, timestamp, latest-in-history position).
-3. Take cross-edition comparisons from yesterday's saved records, never
-   from yesterday's prose.
+3. Take cross-edition comparisons from the previous edition's saved
+   records, never from its prose.
 4. Render the email (dry run) and confirm the HTML and the plain-text
    part carry the same headline figures and grades; renderers that
    parse sections can silently drop content from one part.
@@ -85,6 +85,49 @@ with evidence pointers). The sender runs only on a full pass.
   edition is saved, marked UNSENT, and surfaced with the reason.
   Switching accounts or routes mid-incident is how duplicates and
   wrong-sender sends happen.
+
+## Backup and recovery
+
+The config is the standing send authorization and the evidence store
+is the method's memory; both are single local files unless the
+operator keeps copies elsewhere. Keep a copy of the config (the live
+file and its versioned history) and of the send log on a second
+machine or in the code-host account. The copies carry credential
+locations, never values, and are stored with the same care as the
+originals.
+
+If they are lost anyway, recovery is a procedure, not an
+improvisation:
+
+1. Nothing sends until the config is re-established and the owner
+   re-approves it. The standing authorization does not survive the
+   loss of the signed-off config; re-approval re-establishes it.
+2. Reconstruct the config field by field: the sent editions' headers
+   and bodies recover the report-facing fields (sender, recipients,
+   route, brand, schedule, edge, primary host); live account reads
+   recover repositories, side hosts, and scanner enablement (which is
+   re-verified through the adapter read paths, as at sign-off);
+   credential locations are unrecoverable by design — re-issue the
+   read credentials and record their new locations; process facts no
+   record carries (the staging promotion path) are restated by the
+   owner. Mark in the run log which fields are recovered, which are
+   replaced, and which are owner-restated.
+3. Rebuild the send log from the sending provider's own list of
+   accepted sends (ids and idempotency keys), never from a
+   sent-items folder, and verify the edition history is continuous
+   (no missing editions) before resuming: a gap silently corrupts
+   the averages, the follow-up chain, and standing-item history.
+4. Rebuild standing items from the editions' standing lines, with
+   closures annotated as usual.
+5. Where saved records are gone, one disclosed exception applies:
+   cross-edition comparisons and follow-up states may be taken from
+   the sent editions' printed figures, stated in the validation
+   record and the evidence ledger. Corrected figures govern later
+   averages. A burst edition's findings cannot be fully re-derived
+   (its segmentation record is not printed in full); a correction
+   that needs it says so.
+6. An edition sent late the same day says so in WHAT CHANGED; the
+   covering period is not skipped.
 
 ## Corrections
 

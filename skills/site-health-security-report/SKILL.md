@@ -163,7 +163,10 @@ under it. A change to the stack itself is an amendment with its own
 discipline (owner approval, partial re-intake, versioned config
 history): see "Amending a signed-off config" in
 references/stack-intake.md. A correction that changes a grade needs
-the owner's approval before sending. The tools themselves are run
+the owner's approval before sending. Keep a copy of the config and
+the send log off the working machine, and if they are lost, follow
+the recovery procedure in references/verification.md before anything
+sends again. The tools themselves are run
 as:
 
     python3 scripts/site_health.py validate-config config.local.json

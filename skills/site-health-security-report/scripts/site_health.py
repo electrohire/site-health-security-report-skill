@@ -1001,6 +1001,20 @@ SCANNER_DISPLAY_ALIASES = {
 }
 
 
+# Every scanner name the tool knows, for the 'none'-kind credit test:
+# vocabulary tokens and their display aliases, minus the bare role
+# phrases (a segment naming only the kind credits no scanner).
+_ROLE_ONLY_NAMES = {"dependency scanning", "code scanning",
+                    "secret scanning", "sast", "secret detection"}
+_KNOWN_SCANNER_NAMES = sorted(
+    ({_scan_value(k) for k in SCANNER_DISPLAY_ALIASES}
+     | {_scan_value(a) for v in SCANNER_DISPLAY_ALIASES.values() for a in v}
+     | {_scan_value(t) for t in ("dependabot", "codeql", "gitleaks",
+                                 "semgrep")})
+    - _ROLE_ONLY_NAMES - {"", "none"},
+    key=lambda s: -len(s.split()))
+
+
 def _words(text):
     return re.findall(r"[a-z0-9]+", (text or "").lower())
 
@@ -1125,11 +1139,14 @@ def _record_line_problems(report_text, scanning):
         configured = _scan_value(scanning.get(kind_key, ""))
         if configured == "none":
             # Assertion layer (round 13): the line must not credit any
-            # scanner for a kind the config records as 'none'. Credit
-            # shapes mirror the configured path (round 14): attribution
-            # segments test their credited name, and a shape-less role
-            # segment is itself the credit target.
-            _role_only = _scan_value(" ".join(_ROLE_WORDS[kind_key]))
+            # scanner for a kind the config records as 'none'. What
+            # counts as a credit (round 15): a KNOWN scanner name
+            # present in the credit target with the same negation
+            # awareness as the configured path — a bare role phrase,
+            # a negated mention, or a parenthetical remark names no
+            # scanner and is not a credit. Credit shapes mirror the
+            # configured path: attribution segments test their credited
+            # name, a shape-less role segment is itself the target.
             for record in records:
                 segments = re.split(r"[,;·|•]|\band\b", record)
                 role_segments = [seg for seg in segments
@@ -1142,10 +1159,12 @@ def _record_line_problems(report_text, scanning):
                     if attributions else role_segments
                 credited_hit = None
                 for t in targets:
-                    credited = _scan_value(t)
-                    if credited and credited != "none" \
-                            and credited != _role_only:
-                        credited_hit = credited
+                    words = _words(t)
+                    for cand in _KNOWN_SCANNER_NAMES:
+                        if _phrase_present(words, cand.split()):
+                            credited_hit = cand
+                            break
+                    if credited_hit:
                         break
                 if credited_hit:
                     problems.append(

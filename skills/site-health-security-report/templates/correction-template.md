@@ -5,9 +5,9 @@ White-label correction template. The two headings and the Corrected
 grades line are literal: the validator (check-run --kind correction)
 requires them in this shape. Delete this comment before sending.
 -->
-Subject: Correction — {{brand.display_name}} daily report — {{date_short}}: {{short_reason}}
+Subject: Correction — {{brand.display_name}} {{cadence}} report — {{date_short}}: {{short_reason}}
 
-Correction — {{brand.display_name}} daily report — {{date}} (covering {{covering_date}})
+Correction — {{brand.display_name}} {{cadence}} report — {{date}} (covering {{covering_text}})
 
 ## What was wrong
 
