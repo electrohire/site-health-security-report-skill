@@ -54,6 +54,11 @@ incident note like any other.
   be read directly, which is what this skill does.
 - SAST: GitLab SAST (Semgrep-based analyzers) via CI template.
 - Secrets: Secret Detection CI job (gitleaks-based).
+- Config vocabulary: record the three in the config as
+  `gitlab-dependency-scanning`, `gitlab-sast`, and
+  `gitlab-secret-detection`; the report's Scanners of record line
+  credits them as GitLab Dependency Scanning, GitLab SAST, and
+  GitLab Secret Detection.
 - Activity: project events and pipeline APIs.
 - Reading the artifacts: save the pipeline's report files
   (`gl-dependency-scanning-report.json`, `gl-sast-report.json`,

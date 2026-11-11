@@ -96,7 +96,7 @@ the cause named, rather than inventing a zero.
 | `dmarc` | `"reject"` / `"quarantine"` / `"none"` / `"missing"`, required | The domain's DMARC policy posture |
 | `privacy_failures` | int ≥ 0 | Failing privacy/AI spot checks this run |
 | `ci_blocked` | boolean | True when CI/CD cannot run at all (billing block, disabled pipelines) |
-| `edge_posture` | `"protected"` / `"cdn-only"` / `"none"`, required | `protected`: an edge is in front AND WAF or equivalent application-layer protection is verified **in block mode** (a WAF running in count/log-only mode is `cdn-only` until block mode is verified). `cdn-only`: an edge is present but no such protection is verified. `none`: no edge in front of the origin. `cdn-only` and `none` each cap Security at C with the cause named |
+| `edge_posture` | `"protected"` / `"cdn-only"` / `"none"`, required | `protected`: an edge is in front AND WAF or equivalent application-layer protection is verified **in block mode** (a WAF running in count/log-only mode is `cdn-only` until block mode is verified). "Equivalent" means rule-based application-layer filtering — managed rulesets, or custom rules matched against request content — in block mode; rate limiting alone is not equivalent and does not make a deployment `protected`. `cdn-only`: an edge is present but no such protection is verified. `none`: no edge in front of the origin. `cdn-only` and `none` each cap Security at C with the cause named |
 
 Enum tolerance: `csp` also accepts `report_only`; `dmarc` also accepts a
 raw DMARC record (the tool reads its `p=` policy). Observatory grades
