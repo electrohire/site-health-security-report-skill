@@ -14,7 +14,14 @@ The owner approves the first edition before it sends, and approves any
 change to recipients, sending route, or schedule before it takes
 effect. The signed-off config is the standing authorization for
 scheduled editions under it; nothing outside it (a new recipient, a new
-route, a one-off extra send) is authorized. A correction that changes a
+route, a one-off extra send) is authorized, with one exception stated
+here: the incident note. When an edition's findings confirm an outage
+or an F grade, a short incident note to the config's recipients,
+through the config's sending route, is authorized by the same
+sign-off. It carries the idempotency key `incident-<date>` and a
+send-log line like any send; it is a note, not an edition, so it needs
+no gate or validation, and its facts come from the day's saved
+records. The next edition reports it. A correction that changes a
 grade needs the owner's approval before sending.
 
 ## Pre-send verification gate
@@ -47,11 +54,14 @@ period.
 One disposition the gate needs in advance: for an error spike whose
 segmentation is not yet available at send time, the edition sends on
 schedule with the spike reported as an error spike, classification
-pending; it makes no outage claim and grades traffic on the figures
-that exclude the spike only when those are separately known. When the
-segmentation lands, a correction follows the same day if the story
-changes. Holding the edition silently is not an option; neither is
-grading the raw share as if it were the residual.
+pending. The findings carry `classification_pending: true` and no
+burst record; the traffic leg is then not graded and the overall is
+incomplete, because the only share that exists is the raw one and
+grading it as if it were the residual is the failure this rule
+exists to prevent. When the segmentation lands, the flag clears, the
+edition is graded on the record, and a correction follows the same
+day if the story changes. Holding the edition silently is not an
+option.
 
 ## Independent validation
 

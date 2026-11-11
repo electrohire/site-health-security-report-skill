@@ -31,6 +31,7 @@ are not measurements.
 | `five_xx_share` | number 0–1 | Residual server-error share of requests, **after** burst segmentation (see grading.md) |
 | `four_04_share` | number 0–1 | "Not found" share of requests |
 | `outage_confirmed` | boolean | True only when the burst rule classifies the day as a primary-host outage and the primary host was actually down |
+| `classification_pending` | boolean, optional | True when an error spike's segmentation was unavailable at send time: no burst record, the traffic leg is not graded, and the overall is incomplete until the classification lands |
 | `burst` | object, required when a burst was segmented | The segmentation record (`total_errors`, `top_single_ip_errors`, `primary_host_errors`, `top_single_host_errors`). The grader classifies it and requires the classification to agree with `outage_confirmed`; an outage claim without the record is an input error |
 | `repeated_reliability_problems` | boolean, optional | True when the residual (post-segmentation) share exceeded the B band in at least 2 of the last 7 editions (the run records are the evidence; an outage day counts, a reclassified burst does not) |
 

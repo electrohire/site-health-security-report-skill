@@ -12,7 +12,8 @@ purchase time.
 Prices at a glance (list prices, checked November 2026):
 
 - Cloudflare: Free $0; Pro $20 per month billed annually ($25 billed
-  monthly) per domain — the managed WAF rulesets start at Pro.
+  monthly) per domain — the full managed WAF rulesets start at Pro
+  (the free tier carries a small Free Managed Ruleset subset).
 - GitHub Advanced Security, per active committer per month: Code
   Security $30 (CodeQL), Secret Protection $19, $49 for both;
   Dependabot alerts themselves are free on every plan.

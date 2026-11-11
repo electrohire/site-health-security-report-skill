@@ -459,6 +459,16 @@ def grade_traffic(f):
             _req_bool(f, "repeated_reliability_problems", "traffic")
             causes.append("reliability problems repeated across days")
         return "F", causes
+    if f.get("classification_pending"):
+        _req_bool(f, "classification_pending", "traffic")
+        if classification is not None:
+            raise InputError("traffic.classification_pending is true but a "
+                             "traffic.burst record is present: the "
+                             "classification has landed, so clear the flag "
+                             "and grade on the record")
+        return None, ["an error spike's classification was still pending "
+                      "at send time; the traffic leg is not graded on an "
+                      "unsegmented share"]
     share = _req_share(f, "five_xx_share", "traffic")
     share404 = _req_share(f, "four_04_share", "traffic")
     grade = "A"
