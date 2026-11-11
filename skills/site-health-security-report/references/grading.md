@@ -63,7 +63,9 @@ that edition.
   (3) the findings file's `five_xx_share` is the residual, (the covering
   period's total 5xx minus the burst's 5xx) divided by the covering
   period's total requests (on an outage-classified day nothing is
-  attributed away, so the share is the period's total share);
+  attributed away, so the share is the period's total share); the
+  same attribution applies to `four_04_share` (the burst's 404s are
+  removed the same way);
   (4) `outage_confirmed` is set true only when the classification is
   "outage" and the primary host was actually down. The thresholds, as
   the tool computes them (integer-exact): one client address at 60% or

@@ -100,4 +100,6 @@ discipline as sign-off:
 5. `standing_items` is a list of strings. A standing item is verified
    closed when an edition's own records show its condition resolved;
    that edition states the evidence, and the entry is annotated
-   `closed <date>` in the config, never deleted.
+   `closed <date>` in the config, never deleted. The date is the
+   closing edition's covering date. Adding an item mid-run is not an
+   amendment and needs no approval; record it in the run log.

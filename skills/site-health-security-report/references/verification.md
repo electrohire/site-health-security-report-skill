@@ -111,6 +111,12 @@ with evidence pointers). The sender runs only on a full pass.
 
 ## Backup and recovery
 
+Two loss grades: if the off-machine copies survive, recovery is
+restore, verify the restored config against the sent editions'
+headers, and obtain the owner's re-approval — the field-by-field
+reconstruction below is for the worse case, where the copies are
+lost too.
+
 The config is the standing send authorization and the evidence store
 is the method's memory; both are single local files unless the
 operator keeps copies elsewhere. Keep a copy of the config (the live
@@ -181,7 +187,9 @@ findings, saved as `findings-corrected.json` beside the as-sent
 config, its own idempotency key, verified from its send-log line. A
 correction's own outcomes (its process fix, any commitment it made)
 are reported in the next edition's follow-up block as an extra,
-explicitly labelled line. The config the
+explicitly labelled line; that line also restates any recommendation
+the correction withdrew, in its outcome form ("withdrawn (by the
+correction of <date>)"), wherever in the chain the item originated. The config the
 correction validates against is the config version that governed the
 corrected edition (kept per the amendment discipline in
 stack-intake.md), not the current config: after a stack change, the

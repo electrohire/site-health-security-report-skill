@@ -17,7 +17,7 @@ definitions:
           - mkdir -p out
           # Secrets: full-history scan (also run once at setup over all history)
           - docker run --rm -v "$BITBUCKET_CLONE_DIR:/repo" zricethezav/gitleaks:latest
-              detect --source /repo --report-format json --report-path /repo/out/gitleaks.json || true
+              git --report-format json --report-path /repo/out/gitleaks.json /repo || true
           # SAST: Semgrep with the auto ruleset configuration
           - docker run --rm -v "$BITBUCKET_CLONE_DIR:/src" semgrep/semgrep:latest
               semgrep --config auto --json --output /src/out/semgrep.json /src || true

@@ -56,7 +56,10 @@ recommendations in the template layout; within the block, last
 edition's items come first and nothing new is added there.
 
 Comparisons, defined (round 12, cadence-corrected round 14):
-comparisons pair like with like, in covering-period units. The
+comparisons pair like with like, in covering-period units. Where an
+edition was corrected, its corrected figures are the comparison
+inputs everywhere (previous-period figures and averages alike),
+never the as-sent ones. The
 Requests figure (the covering period's total) compares against the
 previous covering period's total, and the baseline average is the
 mean of the daily request totals over the previous seven covering

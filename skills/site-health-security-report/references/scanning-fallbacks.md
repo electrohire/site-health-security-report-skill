@@ -26,7 +26,7 @@ report's leg 3 reads the latest artifacts.
 security-scan:
   when: push to main/develop, nightly schedule, manual
   steps:
-    - gitleaks detect --redact --report-format json --report-path out/gitleaks.json
+    - gitleaks git --redact --report-format json --report-path out/gitleaks.json .
     - semgrep scan --config auto --json --output out/semgrep.json
     - osv-scanner -r . --format json --output-file out/osv.json   # or: trivy fs . --format json
   artifacts: out/   # retained at least 35 days so a daily report always has a fresh record (and a weekly one several)
