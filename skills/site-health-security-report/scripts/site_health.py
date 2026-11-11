@@ -729,14 +729,14 @@ SUBGRADES_LINE = re.compile(
 # grade C"). Patterns are anchored to line starts so ordinary prose
 # mentioning a grade is not mistaken for a section verdict.
 SECTION_GRADE_PATTERNS = [
-    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*traffic\s*(?:&|and|-)[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\([^)\n]*\)?)?\s*(?:</h[1-6]>)?[^\w\n]*$")),
-    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*seo\s*(?:/|&|and|-)\s*aeo[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\([^)\n]*\)?)?\s*(?:</h[1-6]>)?[^\w\n]*$")),
-    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*security\s*(?:&|and|-)[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\([^)\n]*\)?)?\s*(?:</h[1-6]>)?[^\w\n]*$")),
+    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*traffic\s*(?:&|and|-)[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\((?:[^()\n]|\([^)\n]*\))*\)?)?\s*(?:</h[1-6]>)?[^\w\n]*$")),
+    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*seo\s*(?:/|&|and|-)\s*aeo[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\((?:[^()\n]|\([^)\n]*\))*\)?)?\s*(?:</h[1-6]>)?[^\w\n]*$")),
+    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*security\s*(?:&|and|-)[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\((?:[^()\n]|\([^)\n]*\))*\)?)?\s*(?:</h[1-6]>)?[^\w\n]*$")),
 ]
 SECTION_GRADE_PATTERNS_END = [
-    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*traffic\s*(?:&|and|-)[^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\([^)\n]*\)?)?\s*(?:</h[1-6]>)?[^\w\n]*$")),
-    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*seo\s*(?:/|&|and|-)\s*aeo[^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\([^)\n]*\)?)?\s*(?:</h[1-6]>)?[^\w\n]*$")),
-    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*security\s*(?:&|and|-)[^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\([^)\n]*\)?)?\s*(?:</h[1-6]>)?[^\w\n]*$")),
+    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*traffic\s*(?:&|and|-)[^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\((?:[^()\n]|\([^)\n]*\))*\)?)?\s*(?:</h[1-6]>)?[^\w\n]*$")),
+    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*seo\s*(?:/|&|and|-)\s*aeo[^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\((?:[^()\n]|\([^)\n]*\))*\)?)?\s*(?:</h[1-6]>)?[^\w\n]*$")),
+    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*security\s*(?:&|and|-)[^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\((?:[^()\n]|\([^)\n]*\))*\)?)?\s*(?:</h[1-6]>)?[^\w\n]*$")),
 ]
 OVERALL_PATTERN = re.compile(r"overall grade:\s*([A-Fa-f])\b")
 CORRECTED_OVERALL_PATTERN = re.compile(r"corrected overall grade is\s+([A-Fa-f])\b")
@@ -1000,10 +1000,10 @@ def _phrase_present(words, phrase_words):
             continue
         if any(w in _NEGATORS for w in words[max(0, i - 8):i]):
             continue
-        after = words[i + n:i + n + 3]
+        after = words[i + n:i + n + 5]
         negated_after = any(
-            after[k] in _NEGATORS and k + 1 < len(after)
-            and after[k + 1] in _NEG_FOLLOW
+            after[k] in _NEGATORS
+            and any(w in _NEG_FOLLOW for w in after[k + 1:k + 3])
             for k in range(len(after)))
         if not negated_after:
             return True
@@ -1022,16 +1022,22 @@ def _line_names_scanner(line, token):
 
 def _credited_name(segment):
     """The scanner an attribution segment actually credits: the text
-    after the last ' by ', or after the segment's label colon. For the
-    secrets kind the scanner's word form IS the role phrase ('secret
-    scanning'), so the whole segment cannot be the test; the credited
-    name is."""
-    low = (segment or "").lower()
+    after the last ' by ', the parenthetical in the 'role (Name)' form,
+    or the text after the segment's label colon. For the secrets kind
+    the scanner's word form IS the role phrase ('secret scanning'), so
+    the whole segment cannot be the test; the credited name is."""
+    seg = segment or ""
+    if seg.lower().startswith("scanners of record:"):
+        seg = seg.split(":", 1)[1]
+    low = seg.lower()
     if " by " in low:
-        return segment[low.rfind(" by ") + 4:]
-    if ":" in segment:
-        return segment.split(":", 1)[1]
-    return segment
+        return seg[low.rfind(" by ") + 4:]
+    m = re.search(r"\(([^)]*)\)", seg)
+    if m:
+        return m.group(1)
+    if ":" in seg:
+        return seg.split(":", 1)[1]
+    return seg
 
 
 _ROLE_WORDS = {
@@ -1084,7 +1090,8 @@ def _record_line_problems(report_text, scanning):
                              if any(rw in seg.lower()
                                     for rw in _ROLE_WORDS[kind_key])]
             attributions = [seg for seg in role_segments
-                            if " by " in seg.lower() or ":" in seg]
+                            if " by " in seg.lower() or ":" in seg
+                            or "(" in seg]
             targets = [_credited_name(seg) for seg in attributions] \
                 if attributions else \
                 ([" ".join(role_segments)] if role_segments else [record])
@@ -1116,6 +1123,14 @@ def _addressish(line):
     if any("@" not in t and t.strip(",;·|").isupper()
            and len(t.strip(",;·|")) >= 3 for t in tokens):
         return False  # all-caps prose ('COPIES TO ...'), not an address list
+    prose_lead = {"copies", "copy", "to", "from", "cc", "subject", "notes",
+                  "note", "date", "sent", "attn", "regarding", "contact",
+                  "please", "reviewed", "review", "loop", "distribution"}
+    for tok in tokens:
+        if "@" in tok:
+            break
+        if tok.strip(",;·|").lower() in prose_lead:
+            return False  # prose lead-in ('Copies To ...'), not an address list
     if not tokens:
         return False
     for tok in tokens:
