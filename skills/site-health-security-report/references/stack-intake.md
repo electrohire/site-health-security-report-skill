@@ -111,8 +111,8 @@ discipline as sign-off:
    that governed that edition, so the history is load-bearing, not
    bookkeeping.
 4. The amended config governs from the first edition whose covering
-   day ends after the amendment takes effect; an edition whose
-   covering day straddles the change is composed under the amended
+   period ends after the amendment takes effect; an edition whose
+   covering period straddles the change is composed under the amended
    config and narrates the switch in WHAT CHANGED.
 5. `standing_items` is a list of strings. A standing item is verified
    closed when an edition's own records show its condition resolved;
