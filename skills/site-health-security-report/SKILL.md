@@ -1,3 +1,7 @@
+---
+name: site-health-security-report
+description: Produce a graded daily (or weekly) health and security report for a website — traffic and errors from the site's own edge analytics, SEO/AEO checker scores, and code-host scanning (dependencies, SAST, secrets) — with evidence behind every figure, a pre-send verification gate, and owner-approved sending. Use when asked to run, set up, or continue a site's health/security report on any stack (Cloudflare, AWS CloudFront, Azure, Fastly, Akamai; GitHub, GitLab, Bitbucket, Azure DevOps, Gitea). Always start with the stack intake in references/stack-intake.md; never assume a vendor.
+---
 <!--
 SPDX-License-Identifier: MIT
 SPDX-FileCopyrightText: 2026 ElectroHire Inc.
@@ -126,7 +130,7 @@ Full rubric: `references/grading.md`. In short:
 - **F**: a critical alert with a public exploit affecting production,
   scores under 50, or the site is down.
 
-Security sub-grade downgrade causes include: Observatory D or F, SSL Labs
+Security sub-grade downgrade causes include: Observatory D+ or worse, SSL Labs
 below B, a missing enforcing CSP, no DMARC record (or p=none), code or
 secret scanning dark, and any privacy/AI check failing. The overall grade
 is the lowest sub-grade. Every downgrade names its cause in one line.

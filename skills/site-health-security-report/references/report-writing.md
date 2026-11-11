@@ -48,9 +48,26 @@ measured. Report as "self-run on-page audit: N of 15".
 
 Three to five, ranked by impact, each with a named owner from the
 config. A recommendation that names no owner is a wish. Close the loop:
-each edition states what happened to last edition's recommendations
-(done, in progress, no movement), from evidence, before adding new
-ones.
+each edition states what happened to last edition's recommendations,
+from evidence, one line per item in the Follow-up block, with one of
+four outcomes: done, in progress, no movement, or withdrawn (by a
+correction — name its date). The block sits after the new
+recommendations in the template layout; within the block, last
+edition's items come first and nothing new is added there.
+
+Comparisons, defined (round 12): the 7-day average is the arithmetic
+mean of the daily request totals in the previous seven editions' edge
+records, rounded to the nearest whole request; with fewer previous
+editions it is the mean of those available, and the template line
+says so. Unique visitors and page views compare against yesterday's
+edition. Dependency totals compare against the previous edition.
+
+Standing items live in the config's `standing_items` and in the
+template's standing line. When an edition's own records verify a
+standing item closed, the edition reports the closure and the config
+entry is annotated `closed <date>` — annotated, never deleted, so the
+history survives. A same-day correction is sent before that day's
+edition, so the edition can report corrected facts in the past tense.
 
 ## First editions and clean days
 

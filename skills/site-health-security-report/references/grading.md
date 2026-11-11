@@ -28,7 +28,7 @@ Security sub-grade at C unless a worse band already applies:
 - Code scanning dark on any product repository.
 - Secret scanning dark, or a secret-scanning alert open.
 - No enforcing Content-Security-Policy (report-only does not count).
-- Mozilla Observatory grade D or F.
+- Mozilla Observatory grade D+ or worse (D+, D, D-, F).
 - SSL Labs grade below B, or a certificate expiring within 14 days.
 - DMARC missing, or DMARC policy `p=none`.
 - Any privacy/AI spot check failing (wrong controller named, no AI
@@ -39,11 +39,11 @@ Security sub-grade at C unless a worse band already applies:
 ## Traffic & reliability causes
 
 - 5xx share of traffic: at or under 0.1% is normal noise; above that up
-  to 0.5% is minor (B, and the cause line names the figures); 0.5 to 2%
-  is a noticeable problem (C); over 2% or repeated problems across days
-  is repeated reliability trouble (D); a confirmed primary-host outage
-  is F. An elevated 404 share behaves the same way at the 5% (B) and
-  10% (C) marks.
+  to and including 0.5% is minor (B, and the cause line names the
+  figures); over 0.5% up to 2% is a noticeable problem (C); over 2% or
+  repeated problems across days is repeated reliability trouble (D); a
+  confirmed primary-host outage is F. An elevated 404 share behaves the
+  same way: over 5% up to and including 10% is B; over 10% is C.
 - Apply the burst rule first: traffic concentrated in one client address
   or on a non-primary host is a scanner/probe event. It is reported as a
   security-relevant event, and it does not set the reliability grade as

@@ -616,6 +616,21 @@ def _validate_config(cfg):
         if cc is not None and (not isinstance(cc, list)
                                or any(not isinstance(x, str) or not x.strip() for x in cc)):
             errors.append("recipients.cc must be a list of addresses (or omitted)")
+        # Shape, not just presence (round 12): an entry with no address
+        # in it extracts to nothing on both sides of the header check
+        # and 'agrees' vacuously.
+        for field, entries in (("to", to), ("cc", cc)):
+            if isinstance(entries, list):
+                for entry in entries:
+                    if isinstance(entry, str) and entry.strip() \
+                            and not _EMAIL_RE.search(entry):
+                        errors.append(f"recipients.{field} entry '{entry}' "
+                                      f"contains no email address")
+    sender = cfg.get("sender")
+    if sender is not None and (not isinstance(sender, str)
+                               or not _EMAIL_RE.search(sender)):
+        errors.append("sender must contain an email address (a bare name "
+                      "cannot send)")
     brand = cfg.get("brand")
     if brand is not None and (not isinstance(brand, dict)
                               or not str(brand.get("display_name") or "").strip()):
@@ -900,10 +915,14 @@ def validate_run(cfg, findings, report_text, kind="edition"):
         used = None
     active = {"sast": bool(sec.get("code_scanning_on")),
               "secrets": bool(sec.get("secret_scanning_on")),
-              "dependencies": sec.get("critical") is not None
-                              or sec.get("high") is not None}
+              "dependencies": any(sec.get(k) is not None for k in
+                                  ("critical", "high", "medium", "low",
+                                   "total_open"))}
     for kind_key in ("dependencies", "sast", "secrets"):
         configured = _scan_value(scanning.get(kind_key, ""))
+        if active[kind_key] and configured == "none":
+            problems.append(f"findings carry {kind_key} evidence but the "
+                            f"config records {kind_key} scanning as 'none'")
         if active[kind_key] and configured not in ("", "none"):
             named = _scan_value((used or {}).get(kind_key, ""))
             if not named:
