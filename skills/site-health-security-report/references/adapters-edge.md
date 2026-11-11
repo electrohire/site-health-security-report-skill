@@ -19,7 +19,10 @@ to get them, and what DDoS controls to check, per provider.
   acceptable credential location instead; record which one the
   deployment uses in the config.
 - Segmentation: filter by `clientRequestHTTPHost` for host, and use
-  firewall/security events for per-address burst analysis.
+  firewall/security events for per-address burst analysis. For a
+  partial window (a mid-period switch, a non-UTC covering period),
+  sum the hourly groups instead of the daily ones and say so in
+  the evidence record.
 - DDoS controls to verify: "Under Attack" readiness, DDoS managed
   ruleset enabled, WAF managed rules, rate-limiting rules on login, API,
   and expensive endpoints; bot fight mode or Super Bot Fight Mode;

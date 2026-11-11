@@ -64,6 +64,13 @@ completed it. The block sits after the new
 recommendations in the template layout; within the block, last
 edition's items come first and nothing new is added there.
 
+A straddling edition (a stack amendment mid-period) composes its
+traffic figures from both sources: additive counts (requests,
+errors, per-status counts) sum across the switch; figures that
+cannot be merged, unique visitors above all, are printed as not
+available with the reason, never summed. The next edition's
+comparison line notes the break.
+
 Comparisons, defined (round 12, cadence-corrected round 14):
 comparisons pair like with like, in covering-period units. Where an
 edition was corrected, its corrected figures are the comparison
