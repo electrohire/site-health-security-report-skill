@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<!--
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 ElectroHire Inc.
+White-label HTML shell for the report email. The plain-text part built
+from report-template.md always rides along and must carry the same
+headline figures and grades; validation check 4 compares them.
+Brand values (name, accent color, logo) come from the config.
+-->
+<html lang="en">
+<head><meta charset="utf-8"><title>{{brand.display_name}} daily report — {{date_short}}</title></head>
+<body style="font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#16222e;line-height:1.6;margin:0;padding:24px;">
+  <div style="border-top:6px solid {{brand.accent_color}};padding-top:12px;">
+    <img src="{{brand.logo_url}}" alt="{{brand.display_name}}" style="max-height:40px;">
+    <h1 style="font-size:20px;margin:8px 0;">Daily report — {{date}}</h1>
+    <p style="font-size:28px;margin:4px 0;">Overall grade: <strong>{{overall}}</strong></p>
+    <p>{{one_line_summary}}</p>
+    <p>Traffic &amp; reliability {{traffic_grade}} · SEO/AEO {{seo_grade}} · Security &amp; code health {{security_grade}}</p>
+  </div>
+  <!-- Render each markdown section here as <h2> + paragraphs/lists.
+       Do not summarize numbers differently from the text part. -->
+  <div id="sections">{{sections_html}}</div>
+  <p style="color:#5a6b7a;font-size:13px;">Graded A to F by the rubric in the Site Health &amp; Security Report skill. Every figure traces to a record in this run's evidence folder.</p>
+</body>
+</html>

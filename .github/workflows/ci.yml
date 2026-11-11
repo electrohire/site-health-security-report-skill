@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: 2026 ElectroHire Inc.
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Unit tests (stdlib only)
+        run: python3 -m unittest discover -s tests -v
+      - name: SPDX headers present
+        # Comment-capable tracked files carry the SPDX pair (JSON via a
+        # _comment field or a comment the file's own format allows).
+        # Filenames are read line-by-line so names with spaces are safe.
+        run: |
+          missing=0
+          while IFS= read -r f; do
+            case "$f" in LICENSE|CODEOWNERS) continue ;; esac
+            grep -q "SPDX-License-Identifier: MIT" "$f" || { echo "missing SPDX: $f"; missing=1; }
+          done < <(git ls-files | grep -E '\.(md|py|yml|yaml|json|html|sh|js|mjs|css|txt|jsonl)$|^(Dockerfile|Makefile)$')
+          exit $missing

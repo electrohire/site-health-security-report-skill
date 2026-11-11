@@ -1,0 +1,61 @@
+{
+  "_comment": "SPDX-License-Identifier: MIT | Copyright (c) 2026 ElectroHire Inc. | Site Health & Security Report config. Every field is a stack-intake answer; see references/stack-intake.md. Replace every example value.",
+  "brand": {
+    "accent_color": "#1f6f43",
+    "display_name": "Example Co",
+    "logo_url": "https://example.com/logo.png"
+  },
+  "code_host": "github",
+  "code_host_access": "location only: name where the read-only code-host credential lives, never its value",
+  "edge_credential": "location only, never the value: vault entry 'example-co/cloudflare-analytics' (read-only, zone-scoped)",
+  "edge_provider": "cloudflare",
+  "edge_tier": "free",
+  "hosting": "aws",
+  "owners": {
+    "business": "Owner",
+    "code": "Sam",
+    "content": "Jo",
+    "edge": "Pat"
+  },
+  "primary_host": "example.com",
+  "recipients": {
+    "cc": [],
+    "to": [
+      "owner@example.com"
+    ]
+  },
+  "repositories": [
+    "example/web",
+    "example/api"
+  ],
+  "scanning": {
+    "dependencies": "dependabot",
+    "sast": "codeql",
+    "secrets": "secret-scanning"
+  },
+  "schedule": "daily 08:30",
+  "sender": "Example Co Reports <reports@send.example.com>",
+  "sending_route": "resend, from reports@send.example.com, reply-to owner@example.com",
+  "side_hosts": [
+    {
+      "host": "api.example.com",
+      "role": "api"
+    },
+    {
+      "host": "staging.example.com",
+      "role": "staging"
+    },
+    {
+      "host": "app.example.com",
+      "role": "workspace"
+    }
+  ],
+  "site_name": "Example Co",
+  "staging": {
+    "branch": "staging",
+    "promotion": "local merge staging -> main, guard files verified in the staged tree",
+    "url": "https://staging.example.com"
+  },
+  "standing_items": [],
+  "timezone": "America/Detroit"
+}

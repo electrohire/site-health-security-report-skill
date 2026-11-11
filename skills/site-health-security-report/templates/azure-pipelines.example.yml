@@ -1,0 +1,43 @@
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: 2026 ElectroHire Inc.
+# Example Azure Pipelines security scanning for hosts without native
+# scanning (references/scanning-fallbacks.md). Publish the JSON reports
+# as build artifacts and retain them at least 35 days (set the build
+# retention policy), so the report's leg 3 always has a fresh record.
+# Week 1: keep `|| true` (report-only) while the backlog is triaged.
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+schedules:
+  - cron: "0 3 * * *"
+    displayName: Nightly full scan
+    branches:
+      include:
+        - main
+    always: true
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - script: mkdir -p out
+    displayName: Prepare output folder
+  - script: |
+      docker run --rm -v "$(Build.SourcesDirectory):/repo" zricethezav/gitleaks:latest \
+        detect --source /repo --report-format json --report-path /repo/out/gitleaks.json || true
+    displayName: Secrets scan (gitleaks)
+  - script: |
+      docker run --rm -v "$(Build.SourcesDirectory):/src" semgrep/semgrep:latest \
+        semgrep --config auto --json --output /src/out/semgrep.json /src || true
+    displayName: SAST (Semgrep)
+  - script: |
+      docker run --rm -v "$(Build.SourcesDirectory):/repo" ghcr.io/google/osv-scanner:latest \
+        --recursive --format json --output /repo/out/osv.json /repo || true
+    displayName: Dependency scan (OSV-Scanner)
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: out
+      ArtifactName: security-scans
+    displayName: Publish scan reports (retain per build retention policy, 35 days or more)

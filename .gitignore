@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+# A running deployment's real data: never commit any of it.
+evidence/
+evidence-*/
+out/
+send-log*.jsonl
+config.local.json
+config.local.yaml
+config.json
+config.yaml
+.env
+*.pem
+*.key
