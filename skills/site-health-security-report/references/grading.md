@@ -29,7 +29,7 @@ Security sub-grade at C unless a worse band already applies:
 - Secret scanning dark, or a secret-scanning alert open.
 - No enforcing Content-Security-Policy (report-only does not count).
 - Mozilla Observatory grade D+ or worse (D+, D, D-, F).
-- SSL Labs grade below B, or a certificate expiring within 14 days.
+- SSL Labs grade below B, or a certificate expiring in under 14 days.
 - DMARC missing, or DMARC policy `p=none`.
 - Any privacy/AI spot check failing (wrong controller named, no AI
   disclosure, no data-request route).

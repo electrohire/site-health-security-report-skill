@@ -42,11 +42,16 @@ are not measurements.
 | `seo_score` | number 0–100 or null | SEO score from this run: the primary checker, or the labelled fallback (PageSpeed SEO category score, or the self-run audit converted as passed/15 × 100) |
 | `seo_scan_id` | string, required when `seo_score` is present | This run's identifier for the score actually used (checker run id, PageSpeed run timestamp, or audit run id) |
 
-Scanner severity mapping (when a fallback scanner's severities must be
-folded into the counts): scanner "critical"/blocker findings count as
+Scanner severity mapping (when any scanner's severities must be
+folded into the counts — a fallback scanner's vocabulary, or a native
+scanner reporting levels beyond the four, such as GitLab's Info and
+Unknown): scanner "critical"/blocker findings count as
 `critical` only when they are exploitable in production as shipped;
 otherwise map error/blocker to `high`, warning to `medium`, info/note
-to `low`. Record the mapping used in the evidence record. When no
+to `low`. Findings the scanner itself marks Unknown (no severity
+assigned) are excluded from the counts and disclosed in the report
+narrative and the derivation record. Record the mapping used in the
+evidence record. When no
 dependency tooling has run at all (not even the language-native audit),
 record `critical` and `high` as null: the run grades incomplete with
 the cause named, rather than inventing a zero.

@@ -60,7 +60,12 @@ mean of the daily request totals in the previous seven editions' edge
 records, rounded to the nearest whole request; with fewer previous
 editions it is the mean of those available, and the template line
 says so. Unique visitors and page views compare against yesterday's
-edition. Dependency totals compare against the previous edition.
+edition. Dependency totals compare against the previous edition —
+except the first edition after a scanner change: its counts are not
+like-for-like with the old scanner's, so the edition prints them with
+an explicit "the scanner changed, not the code" note in WHAT CHANGED
+and beside the counts, and the comparison chain restarts from that
+edition.
 
 Standing items live in the config's `standing_items` and in the
 template's standing line. When an edition's own records verify a

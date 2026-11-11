@@ -71,3 +71,30 @@ verified.
 The owner approves the completed config (and any later change to
 recipients, route, or schedule) before editions run under it: the
 signed-off config is the standing send authorization.
+
+## Amending a signed-off config (migrations and stack changes)
+
+A change to the stack itself (code host, scanning tools, edge
+provider, hosting, staging) is an amendment, and it follows the same
+discipline as sign-off:
+
+1. Owner approval, recorded, before the amended config takes effect
+   (the approval list above names the send-facing fields; a stack
+   change re-points the sources of record and needs the owner's go
+   for the same reason).
+2. Partial re-intake: re-answer the intake questions covering the
+   changed fields, and re-apply the sign-off check to them (each
+   newly named scanner seen enabled through its adapter read path).
+3. Keep the superseded config as a versioned file next to the live
+   one (`config.local.v1.json`, `config.local.v2.json`, ...). A
+   correction to an edition validates against the config version
+   that governed that edition, so the history is load-bearing, not
+   bookkeeping.
+4. The amended config governs from the first edition whose covering
+   day ends after the amendment takes effect; an edition whose
+   covering day straddles the change is composed under the amended
+   config and narrates the switch in WHAT CHANGED.
+5. `standing_items` is a list of strings. A standing item is verified
+   closed when an edition's own records show its condition resolved;
+   that edition states the evidence, and the entry is annotated
+   `closed <date>` in the config, never deleted.

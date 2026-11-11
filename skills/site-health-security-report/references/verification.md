@@ -91,6 +91,11 @@ with evidence pointers). The sender runs only on a full pass.
 A correction is a send like any other: corrected file, full gate and
 validation re-run (`check-run --kind correction` against the corrected
 findings), recipients copied from the config, its own
-idempotency key, verified from its send-log line. State plainly what
+idempotency key, verified from its send-log line. The config the
+correction validates against is the config version that governed the
+corrected edition (kept per the amendment discipline in
+stack-intake.md), not the current config: after a stack change, the
+old edition's findings truthfully name the old stack's scanners.
+State plainly what
 was wrong, what the correct figure or reading is, whether the grade
 changes, and what process fix prevents the repeat.

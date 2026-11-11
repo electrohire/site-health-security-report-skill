@@ -159,8 +159,12 @@ Full discipline: `references/verification.md` and
 Authorization: the owner approves the first edition and any change to
 recipients, sending route, or schedule before it takes effect; the
 signed-off config is the standing authorization for scheduled editions
-under it. A correction that changes a grade needs the owner's approval
-before sending. The tools themselves are run as:
+under it. A change to the stack itself is an amendment with its own
+discipline (owner approval, partial re-intake, versioned config
+history): see "Amending a signed-off config" in
+references/stack-intake.md. A correction that changes a grade needs
+the owner's approval before sending. The tools themselves are run
+as:
 
     python3 scripts/site_health.py validate-config config.local.json
     python3 scripts/site_health.py grade findings.json

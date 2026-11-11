@@ -920,6 +920,13 @@ def validate_run(cfg, findings, report_text, kind="edition"):
                                    "total_open"))}
     for kind_key in ("dependencies", "sast", "secrets"):
         configured = _scan_value(scanning.get(kind_key, ""))
+        # The assertion layer (round 13): naming a scanner for a kind
+        # the config records as 'none' is a contradiction even when the
+        # kind carries no evidence this edition.
+        if configured == "none" and _scan_value((used or {}).get(kind_key, "")):
+            problems.append(f"findings scanners_used names a {kind_key} "
+                            f"scanner but the config records {kind_key} "
+                            f"scanning as 'none'")
         if active[kind_key] and configured == "none":
             problems.append(f"findings carry {kind_key} evidence but the "
                             f"config records {kind_key} scanning as 'none'")
@@ -1106,7 +1113,28 @@ def _record_line_problems(report_text, scanning):
     problems = []
     for kind_key in ("dependencies", "sast", "secrets"):
         configured = _scan_value(scanning.get(kind_key, ""))
-        if configured in ("", "none"):
+        if configured == "none":
+            # Assertion layer (round 13): the line must not credit any
+            # scanner for a kind the config records as 'none'.
+            for record in records:
+                segments = re.split(r"[,;·|•]|\band\b", record)
+                for seg in segments:
+                    if any(rw in seg.lower() for rw in _ROLE_WORDS[kind_key]) \
+                            and (" by " in seg.lower() or ":" in seg
+                                 or "(" in seg):
+                        credited = _scan_value(_credited_name(seg))
+                        if credited and credited != "none":
+                            problems.append(
+                                f"a Scanners of record line credits a "
+                                f"{kind_key} scanner ('{credited}') but the "
+                                f"config records {kind_key} scanning as "
+                                f"'none'")
+                            break
+                else:
+                    continue
+                break
+            continue
+        if configured == "":
             continue
         for record in records:
             segments = re.split(r"[,;·|•]|\band\b", record)
