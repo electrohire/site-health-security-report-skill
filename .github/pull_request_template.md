@@ -10,4 +10,4 @@ SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 - [ ] `python3 -m unittest discover -s tests` passes
 - [ ] New or changed judgment calls (grades, thresholds, adapter claims) have a test or a claims-pack update in `aee/claims.md`
 - [ ] SPDX headers on new files
-- [ ] Versioning respected: pre-release minor bump only; no changelog until the v1.0.0 release
+- [ ] Versioning respected: semantic versioning; changelog updated in Keep a Changelog format

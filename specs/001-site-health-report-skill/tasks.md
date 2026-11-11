@@ -36,8 +36,10 @@ SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 - [x] T18: Cross-artifact validation (check-run): config, findings,
       and report validated together; burst record enforced inside
       findings; score provenance identifiers.
-- [ ] T19: Iterate (red team + simulations) until a complete round
-      returns zero findings.
-- [ ] T20: First release, v1.0.0, only on the owner's explicit
+- [x] T19: Iterate (red team + simulations) until a complete round
+      returns zero findings. (Round 38, 2026-11-11: red team zero,
+      simulation zero.)
+- [x] T20: First release, v1.0.0, only on the owner's explicit
       permission, with a Keep a Changelog changelog started at that
-      release and semantic versioning from then on.
+      release and semantic versioning from then on. (Owner approved
+      2026-11-11; released as v1.0.0.)
