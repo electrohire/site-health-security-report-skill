@@ -57,7 +57,10 @@ printed raw at a non-technical reader. Close the loop:
 each edition states what happened to last edition's recommendations,
 from evidence, one line per item in the Follow-up block, with one of
 four outcomes: done, in progress, no movement, or withdrawn (by a
-correction — name its date). The block sits after the new
+correction — name its date). An item completed as a step inside a
+later edition's recommendation is reported done in that edition's
+follow-up block with a cross-reference to the procedure that
+completed it. The block sits after the new
 recommendations in the template layout; within the block, last
 edition's items come first and nothing new is added there.
 

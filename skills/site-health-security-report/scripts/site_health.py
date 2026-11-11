@@ -563,7 +563,8 @@ VALID_CODEHOST = {"github", "gitlab", "bitbucket", "azure-devops",
 NON_NATIVE_HOSTS = {"bitbucket", "azure-devops", "gitea", "codeberg"}
 KNOWN_CONFIG_KEYS = set(REQUIRED_CONFIG_FIELDS) | {
     "code_host_instance", "code_host_addons", "code_host_access",
-    "code_host_ci", "edge_tier", "notes"}
+    "code_host_ci", "edge_tier", "notes", "app_platform",
+    "site_backups"}
 
 # Recognized scanning vocabulary. Anything else is rejected: an invented
 # tool name in the config would otherwise certify coverage that does not

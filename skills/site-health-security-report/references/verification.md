@@ -23,7 +23,12 @@ through the config's sending route, is authorized by the same
 sign-off. It carries the idempotency key `incident-<date>` and a
 send-log line like any send; it is a note, not an edition, so it needs
 no gate or validation, and its facts come from the day's saved
-records. The next edition reports it. A correction that changes a
+records. Its content: what happened, the evidence for it, and what
+is being done — and for a solo deployment, the plain-step procedure
+to act on it the same day, under the same rule as edition
+recommendations. The trigger is the event itself, confirmed by the
+day's saved records; it does not wait for an edition to be composed.
+The next edition reports it. A correction that changes a
 grade needs the owner's approval before sending.
 
 ## Pre-send verification gate

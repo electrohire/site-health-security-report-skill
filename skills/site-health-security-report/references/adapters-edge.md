@@ -14,7 +14,10 @@ to get them, and what DDoS controls to check, per provider.
 - Analytics: GraphQL Analytics API (`httpRequests1dGroups` for daily
   totals, adaptive groups for top paths/countries, firewall events for
   per-address detail). Credential: an API token with Zone Analytics Read
-  + Zone Read on the single zone. Never a global API key.
+  + Zone Read on the single zone. Never a global API key. Where the
+  owner reads the dashboard manually, their signed-in session is an
+  acceptable credential location instead; record which one the
+  deployment uses in the config.
 - Segmentation: filter by `clientRequestHTTPHost` for host, and use
   firewall/security events for per-address burst analysis.
 - DDoS controls to verify: "Under Attack" readiness, DDoS managed

@@ -18,6 +18,8 @@ edge_credential: "location only, never the value: vault entry 'example-co/cloudf
 code_host: github                # github | gitlab | bitbucket | azure-devops | gitea | codeberg | other
 code_host_access: "location only: name where the read-only code-host credential lives, never its value"
 code_host_ci: github-actions     # optional: the CI the pipeline scanners run under, where the host offers a choice
+app_platform: none               # optional: a platform whose components update separately (wordpress, a CMS), with its advisory source
+site_backups: "nightly host backups, restore verified 2026-10-15"   # optional: how the site itself is backed up, and when last verified
 # code_host_instance: saas       # optional: saas | self-managed (matters for gitlab/azure-devops feature tiers)
 sender: "Example Co Reports <reports@send.example.com>"
 repositories: [example/web, example/api]

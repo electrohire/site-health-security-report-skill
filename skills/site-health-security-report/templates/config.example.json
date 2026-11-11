@@ -8,6 +8,8 @@
   "code_host": "github",
   "code_host_access": "location only: name where the read-only code-host credential lives, never its value",
   "code_host_ci": "github-actions",
+  "app_platform": "none",
+  "site_backups": "nightly host backups, restore verified 2026-10-15",
   "edge_credential": "location only, never the value: vault entry 'example-co/cloudflare-analytics' (read-only, zone-scoped)",
   "edge_provider": "cloudflare",
   "edge_tier": "free",

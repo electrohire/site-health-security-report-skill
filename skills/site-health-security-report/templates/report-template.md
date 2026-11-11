@@ -56,6 +56,12 @@ PRIVACY & COMPLIANCE
 - Data-request route published: {{data_rights}}
 
 RECOMMENDATIONS (ranked)
+<!-- Solo deployment (the owner is the operator): each recommendation
+carries its procedure in plain steps — where to go, what to click,
+back up first where the change can break the site, what to check
+afterwards, what to do if it breaks. And the "Why a" cause lines
+above are glossed into plain language, never the tool's raw strings,
+for a non-technical reader. -->
 1. ({{owner}}) {{recommendation_1}}
 2. ({{owner}}) {{recommendation_2}}
 3. ({{owner}}) {{recommendation_3}}

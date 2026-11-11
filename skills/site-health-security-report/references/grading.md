@@ -35,6 +35,8 @@ Security sub-grade at C unless a worse band already applies:
   disclosure, no data-request route).
 - CI/CD unable to run (billing block, disabled pipelines), because the
   security pipeline cannot run either.
+- No verified backup of the site itself (`site_backups_verified`
+  recorded false at intake or since).
 
 ## Traffic & reliability causes
 
