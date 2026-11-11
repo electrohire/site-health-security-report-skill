@@ -4,6 +4,7 @@ __pycache__/
 # A running deployment's real data: never commit any of it.
 evidence/
 evidence-*/
+evidence-ledger-*.md
 out/
 send-log*.jsonl
 config.local.json

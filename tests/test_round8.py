@@ -65,11 +65,21 @@ class TestRound8(unittest.TestCase):
         self.assertEqual(run(cfg(), findings(), block + SCANNERS_LINE +
                              SAMPLE_REPORT), [])
 
-    def test_prose_grade_sentence_is_not_a_heading(self):
+    def test_heading_shaped_line_first_grade_governs(self):
+        # Round 11 rule change: the first grade on a heading-shaped line
+        # is that section's stated grade, whatever follows it (rounds
+        # 9-11 showed every tail rule has a hiding place). A negating
+        # sentence in exact heading shape is therefore flagged, and the
+        # composer rewords it out of heading position.
         report = SAMPLE_REPORT + \
             "\nSecurity and GitHub — grade F was avoided only because " \
             "scanning came back.\n"
-        self.assertEqual(sh.validate_report(report, findings()), [])
+        problems = sh.validate_report(report, findings())
+        self.assertTrue(any("security" in p for p in problems), problems)
+        prose = SAMPLE_REPORT + \
+            "\nWe avoided a Security and GitHub — grade F outcome " \
+            "because scanning came back.\n"
+        self.assertEqual(sh.validate_report(prose, findings()), [])
 
     def test_record_line_prose_continuation_not_absorbed(self):
         line = ("Scanners of record: dependency scanning by Dependabot.\n"

@@ -213,7 +213,9 @@ class TestReportValidationRound3(unittest.TestCase):
         self.assertTrue(any("sub-grade" in p for p in problems), problems)
 
     def test_prose_grade_mention_is_not_a_section_verdict(self):
-        report = SAMPLE_REPORT + "\nSecurity & code health grade F would be bad.\n"
+        # Not in heading position (the section label does not start the
+        # line), so this is prose, not a section verdict.
+        report = SAMPLE_REPORT + "\nA Security & code health grade F would be bad.\n"
         problems = sh.validate_report(report, findings())
         self.assertFalse(any("section grade" in p for p in problems), problems)
 

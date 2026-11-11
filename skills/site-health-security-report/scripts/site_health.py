@@ -729,14 +729,19 @@ SUBGRADES_LINE = re.compile(
 # grade C"). Patterns are anchored to line starts so ordinary prose
 # mentioning a grade is not mistaken for a section verdict.
 SECTION_GRADE_PATTERNS = [
-    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*traffic\s*(?:&|and|-)[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\((?:[^()\n]|\([^)\n]*\))*\)?)?\s*(?:</h[1-6]>)?[^\w\n]*$")),
-    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*seo\s*(?:/|&|and|-)\s*aeo[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\((?:[^()\n]|\([^)\n]*\))*\)?)?\s*(?:</h[1-6]>)?[^\w\n]*$")),
-    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*security\s*(?:&|and|-)[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\((?:[^()\n]|\([^)\n]*\))*\)?)?\s*(?:</h[1-6]>)?[^\w\n]*$")),
+    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*traffic\s*(?:&|and|-)[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
+    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*seo\s*(?:/|&|and|-)\s*aeo[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
+    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*security\s*(?:&|and|-)[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
 ]
+# The first grade stated on a heading-shaped line governs that section:
+# no tail discipline (rounds 9-11 showed every tail rule has a depth or
+# shape boundary a stated grade can hide behind; the first-grade rule
+# has none). The END set is the same rule for headings without a
+# separator before 'grade'.
 SECTION_GRADE_PATTERNS_END = [
-    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*traffic\s*(?:&|and|-)[^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\((?:[^()\n]|\([^)\n]*\))*\)?)?\s*(?:</h[1-6]>)?[^\w\n]*$")),
-    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*seo\s*(?:/|&|and|-)\s*aeo[^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\((?:[^()\n]|\([^)\n]*\))*\)?)?\s*(?:</h[1-6]>)?[^\w\n]*$")),
-    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*security\s*(?:&|and|-)[^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\((?:[^()\n]|\([^)\n]*\))*\)?)?\s*(?:</h[1-6]>)?[^\w\n]*$")),
+    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*traffic\s*(?:&|and|-)[^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
+    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*seo\s*(?:/|&|and|-)\s*aeo[^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
+    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*security\s*(?:&|and|-)[^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
 ]
 OVERALL_PATTERN = re.compile(r"overall grade:\s*([A-Fa-f])\b")
 CORRECTED_OVERALL_PATTERN = re.compile(r"corrected overall grade is\s+([A-Fa-f])\b")
@@ -1000,7 +1005,7 @@ def _phrase_present(words, phrase_words):
             continue
         if any(w in _NEGATORS for w in words[max(0, i - 8):i]):
             continue
-        after = words[i + n:i + n + 5]
+        after = words[i + n:i + n + 8]
         negated_after = any(
             after[k] in _NEGATORS
             and any(w in _NEG_FOLLOW for w in after[k + 1:k + 3])
