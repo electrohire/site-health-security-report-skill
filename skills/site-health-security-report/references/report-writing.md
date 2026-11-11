@@ -92,7 +92,11 @@ except the first edition after a scanner change: its counts are not
 like-for-like with the old scanner's, so the edition prints them with
 an explicit "the scanner changed, not the code" note in WHAT CHANGED
 and beside the counts, and the comparison chain restarts from that
-edition.
+edition. When a headline series (a score, an error share, an alert
+count) has moved in the same direction across at least 3 editions,
+WHAT CHANGED names the trend and its span, even when no single
+edition's move is large: a slow decline is a fact of the run, not
+of any one day.
 
 Standing items live in the config's `standing_items` and in the
 template's standing line. When an edition's own records verify a
