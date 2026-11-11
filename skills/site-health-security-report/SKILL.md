@@ -132,7 +132,8 @@ Full rubric: `references/grading.md`. In short:
 - **D**: any critical alert open, scores 50-69, or repeated reliability
   problems.
 - **F**: a critical alert with a public exploit affecting production,
-  scores under 50, or the site is down.
+  a confirmed compromise of the site, scores under 50, or the site
+  is down.
 
 Security sub-grade downgrade causes include: Observatory D+ or worse, SSL Labs
 below B, a missing enforcing CSP, no DMARC record (or p=none), code or

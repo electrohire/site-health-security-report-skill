@@ -16,7 +16,7 @@ writer's mood. Overall grade = the lowest of the three sub-grades.
 | B | (the security leg has no B: it holds A until the first named cause caps it at C) | 80-89 | Minor issues only |
 | C | Any high open | 70-79 | A noticeable error problem |
 | D | Any critical open | 50-69 | Repeated reliability problems |
-| F | Critical with a public exploit in production | Under 50 | Site down (primary host, per the burst rule) |
+| F | Critical with a public exploit in production, or a confirmed compromise of the site | Under 50 | Site down (primary host, per the burst rule) |
 
 ## Named downgrade causes (Security & code health)
 
