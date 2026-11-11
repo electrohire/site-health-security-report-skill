@@ -17,7 +17,7 @@ from fixtures import BASE_CONFIG, HEALTHY_GITHUB_CLOUDFLARE as HEALTHY, SAMPLE_R
 
 HEADER = ("From: Example Co Reports <reports@send.example.com> · "
           "To: owner@example.com\n")
-SCANNERS_LINE = "Scanners: dependabot, codeql, secret-scanning.\n"
+SCANNERS_LINE = "Scanners of record: dependabot, codeql, secret-scanning.\n"
 
 
 def cfg(**over):

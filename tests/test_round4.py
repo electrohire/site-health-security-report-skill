@@ -15,7 +15,7 @@ import site_health as sh  # noqa: E402
 from fixtures import BASE_CONFIG, HEALTHY_GITHUB_CLOUDFLARE as HEALTHY, SAMPLE_REPORT  # noqa: E402
 
 SENDER = "Example Co Reports <reports@send.example.com>"
-SCANNERS_LINE = "Scanners: dependabot, codeql, secret-scanning.\n"
+SCANNERS_LINE = "Scanners of record: dependabot, codeql, secret-scanning.\n"
 
 
 def cfg(**over):
@@ -89,7 +89,55 @@ class TestScannerIdentity(unittest.TestCase):
     def test_report_crediting_only_another_scanner_is_caught(self):
         report = header() + "Code scanning (Semgrep) ran clean.\n" + SAMPLE_REPORT
         problems = run(cfg(), findings(), report)
-        self.assertTrue(any("never names" in p for p in problems), problems)
+        self.assertTrue(any("Scanners of record" in p for p in problems), problems)
+
+    def test_negated_body_mentions_do_not_satisfy_the_record_line(self):
+        report = header() + SAMPLE_REPORT + \
+            "\nWe do not use Semgrep, OSV-Scanner or Gitleaks.\n"
+        c = cfg()
+        c["scanning"] = {"dependencies": "osv-scanner", "sast": "semgrep",
+                         "secrets": "gitleaks"}
+        f = findings()
+        f["security"]["scanners_used"] = {"dependencies": "osv-scanner",
+                                          "sast": "semgrep",
+                                          "secrets": "gitleaks"}
+        problems = run(c, f, report)
+        self.assertTrue(any("Scanners of record" in p for p in problems), problems)
+
+    def test_substring_collisions_do_not_satisfy_the_record_line(self):
+        c = cfg(code_host="gitlab", code_host_instance="saas")
+        c["scanning"] = {"dependencies": "gitlab-dependency-scanning",
+                         "sast": "gitlab-sast",
+                         "secrets": "gitlab-secret-detection"}
+        f = findings()
+        f["security"]["scanners_used"] = {
+            "dependencies": "gitlab-dependency-scanning",
+            "sast": "gitlab-sast", "secrets": "gitlab-secret-detection"}
+        report = header() + SAMPLE_REPORT + \
+            "\nScanners of record: notes on sastra manuscripts.\n"
+        problems = run(c, f, report)
+        self.assertTrue(any("Scanners of record" in p for p in problems), problems)
+
+    def test_bulleted_record_line_satisfies_the_check(self):
+        report = header() + "- " + SCANNERS_LINE + SAMPLE_REPORT
+        self.assertEqual(run(cfg(), findings(), report), [])
+
+    def test_ghazdo_full_display_name_satisfies_dependencies(self):
+        c = cfg(code_host="azure-devops")
+        c["code_host_addons"] = ["ghazdo"]
+        c["scanning"] = {"dependencies": "ghazdo-dependency-scanning",
+                         "sast": "ghazdo-codeql",
+                         "secrets": "ghazdo-secret-scanning"}
+        f = findings()
+        f["security"]["scanners_used"] = {
+            "dependencies": "ghazdo-dependency-scanning",
+            "sast": "ghazdo-codeql", "secrets": "ghazdo-secret-scanning"}
+        line = ("Scanners of record: dependency scanning by GitHub Advanced "
+                "Security for Azure DevOps, code scanning by GitHub Advanced "
+                "Security for Azure DevOps CodeQL, secret scanning by GitHub "
+                "Advanced Security Secret Scanning.\n")
+        report = header() + line + SAMPLE_REPORT
+        self.assertEqual(run(c, f, report), [])
 
     def test_display_name_forms_satisfy_the_naming_check(self):
         c = cfg(code_host="gitlab", code_host_instance="saas")
@@ -101,9 +149,9 @@ class TestScannerIdentity(unittest.TestCase):
             "dependencies": "gitlab-dependency-scanning",
             "sast": "gitlab-sast", "secrets": "gitlab-secret-detection"}
         report = header() + SAMPLE_REPORT + (
-            "\nDependency scanning by GitLab Dependency Scanning; code "
-            "scanning (GitLab SAST): on; secret scanning (GitLab Secret "
-            "Detection): on.\n")
+            "\nScanners of record: dependency scanning by GitLab Dependency "
+            "Scanning, code scanning by GitLab SAST, secret scanning by "
+            "GitLab Secret Detection.\n")
         self.assertEqual(run(c, f, report), [])
 
 
@@ -172,6 +220,29 @@ class TestRound5Shapes(unittest.TestCase):
         problems, _w = sh.validate_run(cfg(), findings(), _filled_correction(),
                                        kind="correction")
         self.assertEqual(problems, [])
+
+    def test_ungraded_leg_with_letter_heading_is_caught(self):
+        f = findings()
+        f["seo_aeo"] = {"aeo_score": None, "seo_score": None}
+        report = SAMPLE_REPORT.replace(
+            "Sub-grades: Traffic & reliability A · SEO/AEO A · Security & code health A",
+            "Sub-grades: Traffic & reliability A · SEO/AEO not available · Security & code health A")
+        report = report.replace(
+            "OVERALL GRADE: A", "OVERALL GRADE: A (incomplete: SEO/AEO not available)")
+        problems = sh.validate_report(report, f)
+        self.assertTrue(any("ungraded" in p for p in problems), problems)
+
+    def test_dmarc_subdomain_policy_does_not_masquerade_as_reject(self):
+        self.assertEqual(sh._norm_dmarc("v=DMARC1; p=none; sp=reject"), "none")
+        self.assertEqual(
+            sh._norm_dmarc("v=DMARC1; p=none; rua=mailto:dmarc@p=reject.example"),
+            "none")
+        self.assertEqual(sh._norm_dmarc("v=DMARC1; p=reject; sp=none"), "reject")
+
+    def test_correction_with_stray_overall_line_is_caught(self):
+        bad = _filled_correction() + "\nOVERALL GRADE: F\n"
+        problems = sh.validate_report(bad, findings(), kind="correction")
+        self.assertTrue(any("OVERALL GRADE" in p for p in problems), problems)
 
     def test_ungraded_leg_edition_validates_with_not_available(self):
         f = findings()

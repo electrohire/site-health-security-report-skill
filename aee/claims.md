@@ -11,7 +11,7 @@ skill and in this pack, in the open.
 
 | ID | Claim | Falsifier | Evidence | Verdict |
 |---|---|---|---|---|
-| C1 | The grading functions reproduce the production rubric: a healthy GitHub+Cloudflare day grades A; scanning-dark caps Security at C; a public exploit in production grades F. | Any scenario fixture grading differently in the suite. | `tests/fixtures.py` + the five test modules, 138 tests (2026-11-10 local run: all passing except 3 CLI tests blocked by the sandbox's temporary-file restriction; the same tests run green in CI). | supported |
+| C1 | The grading functions reproduce the production rubric: a healthy GitHub+Cloudflare day grades A; scanning-dark caps Security at C; a public exploit in production grades F. | Any scenario fixture grading differently in the suite. | `tests/fixtures.py` + the five test modules, 152 tests, all passing (2026-11-10 local run and CI). | supported |
 | C2 | Report-only CSP is never counted as enforcing. | A headers fixture with only a Report-Only header returning "enforcing". | `TestHeaders.test_report_only_is_not_enforcing`. | supported |
 | C3 | The burst rule separates a scanner event from a real outage on the same totals. | Either segmentation fixture classifying the other way. | `TestBurstRule` (4 tests). | supported |
 | C4 | Bitbucket Cloud offers no native dependency, SAST, or secret scanning, so the skill's fallback stack is necessary there. | Atlassian shipping native scanners of any of the three kinds. | Stated as of 2026-11; the config validator rejects a Bitbucket "native" SAST claim (`TestConfigValidation.test_bitbucket_native_sast_claim_is_rejected`). Re-check at each release. | supported, time-boxed |

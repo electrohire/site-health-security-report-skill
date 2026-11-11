@@ -18,7 +18,7 @@ one plain paragraph.}}
 
 {{What is actually true, with the source that establishes it.}}
 
-Corrected grades: Traffic & reliability {{traffic_grade}} · SEO/AEO {{seo_grade}} · Security & code health {{security_grade}}. The corrected overall grade is {{corrected_overall}} (was {{sent_overall}}).
+Corrected grades: Traffic & reliability {{traffic_grade}} · SEO/AEO {{seo_grade}} · Security & code health {{security_grade}}. (When a leg is ungraded in the corrected findings, put "not available" in its slot and append " (incomplete: <leg> not available)" to this line.) The corrected overall grade is {{corrected_overall}} (was {{sent_overall}}).
 
 {{Which recommendations from the original edition are withdrawn,
 replaced, or stand.}}

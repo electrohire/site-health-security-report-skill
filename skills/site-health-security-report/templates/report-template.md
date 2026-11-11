@@ -22,14 +22,14 @@ WHAT CHANGED SINCE THE LAST REPORT
 - {{change_2}}
 
 TRAFFIC & {{edge_name}} — grade {{traffic_grade}}
-- Requests: {{requests}} (7-day average {{requests_avg}}). Unique visitors: {{uniques}}. Page views: {{page_views}}. (First edition: replace the average with "not available, first edition"; comparison figures are never invented to fill the line.)
+- Requests: {{requests}} (7-day average {{requests_avg}}). Unique visitors: {{uniques}}. Page views: {{page_views}}. (Until a full week of editions exists: write "not available, first edition" or "average of the last {{n}} editions"; comparison figures are never invented to fill the line.)
 - Responses: {{success_share}} success (2xx, the request worked); client errors (4xx, the request was refused or missing) {{four_xx}} — of those "not found" (404, the page or file does not exist) {{n404}}; server errors (5xx, the origin failed to answer) {{five_xx}}.
 - {{burst_or_anomaly_paragraph — apply the burst rule before writing the word outage}}
 - Top paths and countries: {{top_paths_countries}}
 Why a {{traffic_grade}}: {{traffic_causes}}
 
 SEO / AEO — grade {{seo_grade}}
-- AEO score ({{aeo_checker}}, scan {{aeo_scan_id}}): {{aeo_score}}/100. {{aeo_detail}}
+- AEO score ({{aeo_checker}}, scan {{aeo_scan_id}}): {{aeo_score}}/100. {{aeo_detail}} (When a score is null, replace this bullet with "{{aeo_checker}}: not available. The checker returned no result for this run; no score is carried over." and grade the leg not available.)
 - SEO score ({{seo_source_label}}, {{seo_scan_ref}}): {{seo_score}}/100. {{seo_detail}}
 - Self-run on-page audit: {{audit_passed}} of 15.
 Why a {{seo_grade}}: {{seo_causes}}

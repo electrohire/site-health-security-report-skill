@@ -104,11 +104,25 @@ def _norm_csp(value):
 
 
 def _norm_dmarc(value):
-    """Accept the enum, or a raw DMARC policy/record an agent transcribed."""
+    """Accept the enum, or a raw DMARC policy/record an agent transcribed.
+
+    A raw record is parsed by its tags: the policy is the value of the
+    `p=` tag specifically. Substring matching misreads real records
+    (`sp=reject` is the subdomain policy, and `p=` can appear inside a
+    reporting address), grading a p=none domain as reject.
+    """
     s = _norm(value)
     if s is None:
         return None
     if s in ("reject", "quarantine", "none", "missing"):
+        return s
+    if ";" in s or s.startswith("v=dmarc"):
+        for part in s.split(";"):
+            part = part.strip()
+            if part.startswith("p="):
+                policy = part[2:].strip()
+                if policy in ("reject", "quarantine", "none"):
+                    return policy
         return s
     if "p=reject" in s:
         return "reject"
@@ -714,14 +728,14 @@ SUBGRADES_LINE = re.compile(
 # grade C"). Patterns are anchored to line starts so ordinary prose
 # mentioning a grade is not mistaken for a section verdict.
 SECTION_GRADE_PATTERNS = [
-    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*traffic\s*&[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s+([A-Fa-f])\b")),
-    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*seo\s*/\s*aeo[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s+([A-Fa-f])\b")),
-    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*security\s*&[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s+([A-Fa-f])\b")),
+    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*traffic\s*&[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
+    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*seo\s*/\s*aeo[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
+    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*security\s*&[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
 ]
 SECTION_GRADE_PATTERNS_END = [
-    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*traffic\s*&[^\n]*?grade\s+([A-Fa-f])\b[^\w\n]*$")),
-    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*seo\s*/\s*aeo[^\n]*?grade\s+([A-Fa-f])\b[^\w\n]*$")),
-    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*security\s*&[^\n]*?grade\s+([A-Fa-f])\b[^\w\n]*$")),
+    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*traffic\s*&[^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*$")),
+    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*seo\s*/\s*aeo[^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*$")),
+    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*security\s*&[^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*$")),
 ]
 OVERALL_PATTERN = re.compile(r"overall grade:\s*([A-Fa-f])\b")
 CORRECTED_OVERALL_PATTERN = re.compile(r"corrected overall grade is\s+([A-Fa-f])\b")
@@ -752,6 +766,13 @@ def validate_report(text, findings=None, kind="edition"):
             problems.append("missing 'The corrected overall grade is X' line")
         if findings is not None:
             expected = compute_grades(findings)
+            stray = [g.upper() for g in OVERALL_PATTERN.findall(low)
+                     if expected["overall"] and g.upper() != expected["overall"]]
+            if stray:
+                problems.append(f"overall grade contradiction: the corrected "
+                                f"findings compute {expected['overall']}, but the "
+                                f"correction also states {sorted(set(stray))} on an "
+                                f"'OVERALL GRADE:' line")
             if expected["overall"]:
                 wrong = [g.upper() for g in corrected if g.upper() != expected["overall"]]
                 if wrong:
@@ -810,6 +831,10 @@ def validate_report(text, findings=None, kind="edition"):
         for pat_key, pattern in SECTION_GRADE_PATTERNS + SECTION_GRADE_PATTERNS_END:
             want_grade = expected[pat_key]
             if want_grade is None:
+                if pattern.findall(low):
+                    problems.append(f"section grade contradiction: the {pat_key} "
+                                    f"section states a letter grade, but the leg "
+                                    f"is ungraded (not available)")
                 continue
             for g in pattern.findall(low):
                 if g.upper() != want_grade:
@@ -895,35 +920,51 @@ def validate_run(cfg, findings, report_text, kind="edition"):
     # edition: it carries no header block and no scanner sections, and
     # its recipients are governed by the send discipline, not by a
     # header in the file): the report must name each configured
-    # scanner somewhere in the document (so a body that credits a
-    # different scanner while never naming the real one is caught),
-    # and its header's address sets must equal the config's exactly:
-    # no swaps, no additions, no prose-only presence.
+    # scanners on its 'Scanners of record:' line (the credit of record,
+    # cross-checked word by word against the configured scanners), and
+    # its header's address sets must equal the config's exactly: no
+    # swaps, no additions, no prose-only presence.
     if kind != "correction":
-        for kind_key in ("dependencies", "sast", "secrets"):
-            configured = _scan_value(scanning.get(kind_key, ""))
-            if configured not in ("", "none") and not _report_names_scanner(
-                    report_text, configured):
-                problems.append(f"report never names the configured {kind_key} "
-                                f"scanner ('{configured}') anywhere, in its "
-                                f"vocabulary or display-name form: the report "
-                                f"must credit the scanner that actually ran")
+        record = None
+        for line in report_text.splitlines():
+            bare = re.sub(r"^[\s\-\*>#]+", "", line).lower()
+            if bare.startswith("scanners of record:"):
+                record = line
+                break
+        if record is None:
+            problems.append("report has no 'Scanners of record:' line: the "
+                            "template's line naming the scanner per kind is "
+                            "the credit of record and is required")
+        else:
+            for kind_key in ("dependencies", "sast", "secrets"):
+                configured = _scan_value(scanning.get(kind_key, ""))
+                if configured not in ("", "none") and not _line_names_scanner(
+                        record, configured):
+                    problems.append(f"the Scanners of record line does not name "
+                                    f"the configured {kind_key} scanner "
+                                    f"('{configured}'), in vocabulary or "
+                                    f"display-name form")
         problems.extend(_header_problems(cfg, report_text))
     return _dedupe(problems), warnings
 
 
 # Display-name forms a report may credit a scanner by. The config and
-# findings speak the vocabulary tokens ('gitlab-sast'); the report
-# speaks prose ('GitLab SAST'). Both name the same scanner; the
-# identity enforcement lives in findings.scanners_used, and this check
-# only ensures the configured scanner is credited in some form.
+# findings speak the vocabulary tokens ('gitlab-sast'); the report's
+# Scanners of record line speaks prose ('GitLab SAST'). Matching is by
+# whole words in sequence, so 'sastra', 'audited', and negated or
+# incidental body mentions cannot satisfy the credit of record; the
+# identity enforcement behind the line lives in findings.scanners_used.
 SCANNER_DISPLAY_ALIASES = {
     "gitlab-dependency-scanning": ["gitlab dependency scanning", "dependency scanning"],
     "gitlab-sast": ["gitlab sast", "sast"],
     "gitlab-secret-detection": ["gitlab secret detection", "secret detection"],
-    "ghazdo-dependency-scanning": ["dependency scanning"],
-    "ghazdo-codeql": ["codeql"],
-    "ghazdo-secret-scanning": ["secret scanning"],
+    "ghazdo-dependency-scanning": ["dependency scanning",
+                                   "github advanced security for azure devops",
+                                   "github advanced security"],
+    "ghazdo-codeql": ["codeql", "github advanced security codeql",
+                      "github advanced security for azure devops codeql"],
+    "ghazdo-secret-scanning": ["secret scanning",
+                               "github advanced security secret scanning"],
     "secret-scanning": ["secret scanning"],
     "codeql-cli": ["codeql cli", "codeql"],
     "osv-scanner": ["osv scanner"],
@@ -936,15 +977,22 @@ SCANNER_DISPLAY_ALIASES = {
 }
 
 
-def _squash(text):
-    return re.sub(r"[^a-z0-9]+", "", (text or "").lower())
+def _words(text):
+    return re.findall(r"[a-z0-9]+", (text or "").lower())
 
 
-def _report_names_scanner(report_text, token):
-    haystack = _squash(report_text)
-    if _squash(token) in haystack:
+def _contains_words(words, phrase_words):
+    if not phrase_words or len(phrase_words) > len(words):
+        return False
+    return any(words[i:i + len(phrase_words)] == phrase_words
+               for i in range(len(words) - len(phrase_words) + 1))
+
+
+def _line_names_scanner(line, token):
+    words = _words(line)
+    if _contains_words(words, _words(token.replace("-", " "))):
         return True
-    return any(_squash(alias) in haystack
+    return any(_contains_words(words, _words(alias))
                for alias in SCANNER_DISPLAY_ALIASES.get(token, []))
 
 
@@ -965,7 +1013,7 @@ def _header_problems(cfg, report_text):
     a line, addresses on the following lines).
     """
     block = "\n".join(report_text.splitlines()[:15])
-    labels = list(re.finditer(r"(?im)(?:^|[·\n])\s*(from|to|cc)\s*:", block))
+    labels = list(re.finditer(r"(?im)(?:^|[·|\n])\s*(from|to|cc)\s*:", block))
     segments = {}
     for i, m in enumerate(labels):
         end = labels[i + 1].start() if i + 1 < len(labels) else len(block)
