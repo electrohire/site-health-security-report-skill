@@ -171,11 +171,13 @@ configured stack (scanning recorded as 'none' cannot produce findings
 claiming scanning is on; no edge configured cannot produce a protected
 edge posture) and that the report's sender and recipients are the
 config's, copied, not re-typed. Two format rules the check enforces:
-the From/To/Cc header sits in the report's first 15 lines, in the
-template's one-line shape (labels separated by `·`) or one label per
-line; and the security section's "Scanners of record:" line names the
-configured scanner for each kind (display names are accepted), which
-`findings.scanners_used` must match. `validate-report` alone checks only
+the From/To/Cc header sits at the top of the report (it ends at the
+first blank line, and must start within the first 15 lines), in the
+template's one-line shape (labels separated by `·` or `|`), one label
+per line in any order, bulleted, or block style with addresses on the
+following lines; and the security section's "Scanners of record:"
+line names the configured scanner for each kind (display names are
+accepted), which `findings.scanners_used` must match. `validate-report` alone checks only
 report structure and grade agreement; it is a composition aid, not an
 edition validation. No validator verifies narrative figures; that is
 the pre-send gate's job, against the evidence records.

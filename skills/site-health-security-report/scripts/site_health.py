@@ -117,13 +117,14 @@ def _norm_dmarc(value):
     if s in ("reject", "quarantine", "none", "missing"):
         return s
     if ";" in s or s.startswith("v=dmarc"):
+        policies = set()
         for part in s.split(";"):
-            part = part.strip()
-            if part.startswith("p="):
-                policy = part[2:].strip()
-                if policy in ("reject", "quarantine", "none"):
-                    return policy
-        return s
+            m = re.match(r"p\s*=\s*(reject|quarantine|none)\b", part.strip())
+            if m:
+                policies.add(m.group(1))
+        if len(policies) == 1:
+            return policies.pop()
+        return s  # no p= tag, or conflicting duplicates: not a valid record
     if "p=reject" in s:
         return "reject"
     if "p=quarantine" in s:
@@ -720,29 +721,29 @@ REQUIRED_SECTIONS = ["traffic", "seo", "security &", "website security scans",
 # shape; prose mentions elsewhere in the document do not satisfy it.
 # EVERY such line is checked: a second, contradictory line is a defect.
 SUBGRADES_LINE = re.compile(
-    r"sub-grades:[^\n]*?traffic & reliability\s+([A-Fa-f]|not available)\b"
-    r"[^\n]*?seo\s*/\s*aeo\s+([A-Fa-f]|not available)\b"
-    r"[^\n]*?security & code health\s+([A-Fa-f]|not available)\b")
+    r"sub-grades:[^\n]*?traffic\s*(?:&|and)\s*reliability\s+([A-Fa-f]|not available)\b"
+    r"[^\n]*?seo\s*(?:/|&|and|-)\s*aeo\s+([A-Fa-f]|not available)\b"
+    r"[^\n]*?security\s*(?:&|and)\s*code health\s+([A-Fa-f]|not available)\b")
 # The template's per-section grade lines are headings ("## TRAFFIC & X --
 # grade A", "## SEO / AEO -- grade B", "## SECURITY & CODE HEALTH --
 # grade C"). Patterns are anchored to line starts so ordinary prose
 # mentioning a grade is not mistaken for a section verdict.
 SECTION_GRADE_PATTERNS = [
-    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*traffic\s*&[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
-    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*seo\s*/\s*aeo[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
-    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*security\s*&[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
+    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*traffic\s*(?:&|and|-)[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\([^)\n]*\))?\s*(?:</h[1-6]>)?[^\w\n]*$")),
+    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*seo\s*(?:/|&|and|-)\s*aeo[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\([^)\n]*\))?\s*(?:</h[1-6]>)?[^\w\n]*$")),
+    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*security\s*(?:&|and|-)[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\([^)\n]*\))?\s*(?:</h[1-6]>)?[^\w\n]*$")),
 ]
 SECTION_GRADE_PATTERNS_END = [
-    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*traffic\s*&[^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*$")),
-    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*seo\s*/\s*aeo[^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*$")),
-    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*security\s*&[^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*$")),
+    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*traffic\s*(?:&|and|-)[^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*$")),
+    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*seo\s*(?:/|&|and|-)\s*aeo[^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*$")),
+    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*security\s*(?:&|and|-)[^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*$")),
 ]
 OVERALL_PATTERN = re.compile(r"overall grade:\s*([A-Fa-f])\b")
 CORRECTED_OVERALL_PATTERN = re.compile(r"corrected overall grade is\s+([A-Fa-f])\b")
 CORRECTED_GRADES_LINE = re.compile(
-    r"corrected grades:[^\n]*?traffic & reliability\s+([A-Fa-f]|not available)\b"
-    r"[^\n]*?seo\s*/\s*aeo\s+([A-Fa-f]|not available)\b"
-    r"[^\n]*?security & code health\s+([A-Fa-f]|not available)\b")
+    r"corrected grades:[^\n]*?traffic\s*(?:&|and)\s*reliability\s+([A-Fa-f]|not available)\b"
+    r"[^\n]*?seo\s*(?:/|&|and|-)\s*aeo\s+([A-Fa-f]|not available)\b"
+    r"[^\n]*?security\s*(?:&|and)\s*code health\s+([A-Fa-f]|not available)\b")
 
 
 def _dedupe(items):
@@ -925,25 +926,7 @@ def validate_run(cfg, findings, report_text, kind="edition"):
     # its header's address sets must equal the config's exactly: no
     # swaps, no additions, no prose-only presence.
     if kind != "correction":
-        record = None
-        for line in report_text.splitlines():
-            bare = re.sub(r"^[\s\-\*>#]+", "", line).lower()
-            if bare.startswith("scanners of record:"):
-                record = line
-                break
-        if record is None:
-            problems.append("report has no 'Scanners of record:' line: the "
-                            "template's line naming the scanner per kind is "
-                            "the credit of record and is required")
-        else:
-            for kind_key in ("dependencies", "sast", "secrets"):
-                configured = _scan_value(scanning.get(kind_key, ""))
-                if configured not in ("", "none") and not _line_names_scanner(
-                        record, configured):
-                    problems.append(f"the Scanners of record line does not name "
-                                    f"the configured {kind_key} scanner "
-                                    f"('{configured}'), in vocabulary or "
-                                    f"display-name form")
+        problems.extend(_record_line_problems(report_text, scanning))
         problems.extend(_header_problems(cfg, report_text))
     return _dedupe(problems), warnings
 
@@ -988,12 +971,110 @@ def _contains_words(words, phrase_words):
                for i in range(len(words) - len(phrase_words) + 1))
 
 
+_NEGATORS = {"not", "never", "no", "none", "nor"}
+_NEG_FOLLOW = {"used", "use", "ran", "run", "running", "employed",
+               "selected", "chosen"}
+
+
+def _phrase_present(words, phrase_words):
+    """A phrase counts only where at least one occurrence is not negated.
+    Negation is a negator within five words before the phrase ('not a
+    single one of X'), or a negator within two words after it followed by
+    a verb of use ('X was not used'). The affirming construction 'not
+    only X' is removed before checking."""
+    cleaned = []
+    i = 0
+    while i < len(words):
+        if words[i] == "not" and i + 1 < len(words) and words[i + 1] == "only":
+            i += 2
+            continue
+        cleaned.append(words[i])
+        i += 1
+    words = cleaned
+    n = len(phrase_words)
+    for i in range(len(words) - n + 1):
+        if words[i:i + n] != phrase_words:
+            continue
+        if any(w in _NEGATORS for w in words[max(0, i - 5):i]):
+            continue
+        after = words[i + n:i + n + 3]
+        negated_after = any(
+            after[k] in _NEGATORS and k + 1 < len(after)
+            and after[k + 1] in _NEG_FOLLOW
+            for k in range(len(after)))
+        if not negated_after:
+            return True
+    return False
+
+
 def _line_names_scanner(line, token):
     words = _words(line)
-    if _contains_words(words, _words(token.replace("-", " "))):
+    if _phrase_present(words, _words(token.replace("-", " "))):
         return True
-    return any(_contains_words(words, _words(alias))
+    return any(_phrase_present(words, _words(alias))
                for alias in SCANNER_DISPLAY_ALIASES.get(token, []))
+
+
+_ROLE_WORDS = {
+    "dependencies": ("dependency", "dependencies"),
+    "sast": ("sast", "code scanning"),
+    "secrets": ("secret", "secrets"),
+}
+
+
+def _record_line_problems(report_text, scanning):
+    """The Scanners of record line is the report's scanner credit. Every
+    occurrence must agree (a contradictory second line fails), quoted
+    code blocks do not count, a wrapped line is joined with its
+    continuations, and where the line attributes kinds to scanners by
+    role ('code scanning by X'), each role's segment must name the
+    configured scanner for that kind."""
+    text = re.sub(r"```.*?```", "", report_text, flags=re.S)
+    lines = text.splitlines()
+    records = []
+    for i, line in enumerate(lines):
+        bare = re.sub(r"^[\s\-\*>#•]+", "", line).lower()
+        if bare.startswith("scanners of record:"):
+            logical = line
+            for nxt in lines[i + 1:i + 4]:
+                nbare = re.sub(r"^[\s\-\*>#•]+", "", nxt).lower()
+                if not nxt.strip() or nbare.startswith(
+                        ("scanners of record:", "from:", "to:", "cc:",
+                         "subject:", "overall grade", "sub-grades")):
+                    break
+                # A continuation is a wrap: indented, or starting with a
+                # lowercase word mid-phrase. A fresh capitalized sentence
+                # is prose, not part of the credit line.
+                first = nxt.strip().split(None, 1)[0] if nxt.strip() else ""
+                if not (nxt[:1] in (" ", "\t") or (first and first[:1].islower())):
+                    break
+                logical += " " + nxt.strip()
+            records.append(logical)
+    if not records:
+        return ["report has no 'Scanners of record:' line: the template's "
+                "line naming the scanner per kind is the credit of record "
+                "and is required"]
+    problems = []
+    for kind_key in ("dependencies", "sast", "secrets"):
+        configured = _scan_value(scanning.get(kind_key, ""))
+        if configured in ("", "none"):
+            continue
+        for record in records:
+            segments = re.split(r"[,;·|•]|\band\b", record)
+            role_segments = [seg for seg in segments
+                             if any(rw in seg.lower()
+                                    for rw in _ROLE_WORDS[kind_key])]
+            attributions = [seg for seg in role_segments
+                            if " by " in seg.lower() or ":" in seg]
+            targets = attributions if attributions else \
+                ([" ".join(role_segments)] if role_segments else [record])
+            if not all(_line_names_scanner(t, configured) for t in targets):
+                problems.append(
+                    f"a Scanners of record line does not name the configured "
+                    f"{kind_key} scanner ('{configured}'), in vocabulary or "
+                    f"display-name form")
+                break
+    return problems
 
 
 _EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
@@ -1003,22 +1084,64 @@ def _emails(text):
     return {m.group(0).lower() for m in _EMAIL_RE.finditer(text or "")}
 
 
+def _addressish(line):
+    """A header continuation line: every token is part of an address
+    list (an address, a separator, or a capitalized name word). A prose
+    line, with its lowercase sentence words, is not; neither is a
+    label-shaped line ('Notes: someone@example.com'), which starts a
+    new field rather than continuing an address list."""
+    if re.match(r"^[A-Za-z][\w .-]*:\s", line.strip()):
+        return False
+    tokens = [t for t in re.split(r"\s+", line.strip()) if t]
+    if not tokens:
+        return False
+    for tok in tokens:
+        core = tok.strip(",;·|")
+        if "@" in core or core in ("and", "&"):
+            continue
+        if core[:1].isupper():
+            continue
+        return False
+    return True
+
+
 def _header_problems(cfg, report_text):
     """Parse the report's From/To/Cc header and compare address sets
-    exactly against the config. The header block is the first 15 lines;
-    labels are matched wherever they appear in it, and the addresses
-    belonging to a label are everything up to the next label. That
-    covers the template's one-line shape ('From: X · To: Y · Cc: Z'),
-    one label per line in any order, and block style (a label alone on
-    a line, addresses on the following lines).
+    exactly against the config. The header block runs from the first
+    label to the first blank line (within the first 15 lines); labels
+    may be bulleted and may sit on one line ('From: X · To: Y'), one
+    per line in any order, or alone with addresses on the following
+    lines. A label's addresses are its own text plus following
+    address-shaped lines only, so body prose after the header can
+    neither pollute a set nor satisfy one.
     """
-    block = "\n".join(report_text.splitlines()[:15])
-    labels = list(re.finditer(r"(?im)(?:^|[·|\n])\s*(from|to|cc)\s*:", block))
+    all_lines = report_text.splitlines()
+    start = next((i for i, ln in enumerate(all_lines[:15])
+                  if re.search(r"(?i)(?:^|[·|\n])\s*(?:[-*•>]\s*)?"
+                               r"(from|to|cc)\s*:", ln)), None)
+    if start is None:
+        return ["report header not found: the edition must carry its From/To "
+                "header copied from the config (recipients are never re-typed)"]
+    block_lines = []
+    for ln in all_lines[start:start + 40]:
+        if not ln.strip():
+            break
+        block_lines.append(ln)
+    block = "\n".join(block_lines)
+    labels = list(re.finditer(
+        r"(?im)(?:^|[·|\n])\s*(?:[-*•>]\s*)?(from|to|cc)\s*:", block))
     segments = {}
     for i, m in enumerate(labels):
         end = labels[i + 1].start() if i + 1 < len(labels) else len(block)
+        seg_lines = block[m.end():end].splitlines()
+        kept = seg_lines[:1]
+        for extra in seg_lines[1:]:
+            if _addressish(extra):
+                kept.append(extra)
+            else:
+                break
         segments.setdefault(m.group(1).lower(), set()).update(
-            _emails(block[m.end():end]))
+            _emails("\n".join(kept)))
     if "from" not in segments or "to" not in segments:
         return ["report header not found: the edition must carry its From/To "
                 "header copied from the config (recipients are never re-typed)"]

@@ -11,9 +11,9 @@ skill and in this pack, in the open.
 
 | ID | Claim | Falsifier | Evidence | Verdict |
 |---|---|---|---|---|
-| C1 | The grading functions reproduce the production rubric: a healthy GitHub+Cloudflare day grades A; scanning-dark caps Security at C; a public exploit in production grades F. | Any scenario fixture grading differently in the suite. | `tests/fixtures.py` + the five test modules, 152 tests, all passing (2026-11-10 local run and CI). | supported |
+| C1 | The grading functions reproduce the production rubric: a healthy GitHub+Cloudflare day grades A; scanning-dark caps Security at C; a public exploit in production grades F. | Any scenario fixture grading differently in the suite. | `tests/fixtures.py` + the test modules (the full suite; count and status verified each round by the suite itself and CI). | supported |
 | C2 | Report-only CSP is never counted as enforcing. | A headers fixture with only a Report-Only header returning "enforcing". | `TestHeaders.test_report_only_is_not_enforcing`. | supported |
-| C3 | The burst rule separates a scanner event from a real outage on the same totals. | Either segmentation fixture classifying the other way. | `TestBurstRule` (4 tests). | supported |
+| C3 | The burst rule separates a scanner event from a real outage on the same totals. | Either segmentation fixture classifying the other way. | `TestBurstRule` (5 tests). | supported |
 | C4 | Bitbucket Cloud offers no native dependency, SAST, or secret scanning, so the skill's fallback stack is necessary there. | Atlassian shipping native scanners of any of the three kinds. | Stated as of 2026-11; the config validator rejects a Bitbucket "native" SAST claim (`TestConfigValidation.test_bitbucket_native_sast_claim_is_rejected`). Re-check at each release. | supported, time-boxed |
 | C5 | The skill cannot silently run on an assumed stack: incomplete or unknown-stack configs fail validation. | A config missing intake fields, or naming an unknown provider, validating clean. | `TestConfigValidation` + `TestConfigHardening` + `TestScanningVocabulary`/`TestConfigCompleteness2` (24 config tests). | supported |
 | C6 | A composed edition that disagrees with its findings file (any overall-grade occurrence, the anchored Sub-grades line, per-section grade lines, missing sections, an incomplete run not presented as incomplete) is caught before sending. Narrative figures are the pre-send gate's job, not the validator's. | A grade-mismatched or section-missing fixture passing `validate_report`. | `TestReportValidation` (3 tests). | supported |
@@ -23,7 +23,8 @@ skill and in this pack, in the open.
 
 ## Development record (pre-release)
 
-Status: **pre-release, version 0.1.0**. The repository is public for
+Status: **pre-release** (the current minor version lives in the
+repo's VERSION file and README). The repository is public for
 review (https://github.com/electrohire/site-health-security-report-skill,
 MIT, Copyright (c) 2026 ElectroHire Inc.), but nothing is released:
 versioning restarts at v0.1.0 and increments by minor versions during
@@ -34,6 +35,6 @@ gives explicit permission; a Keep a Changelog changelog and semantic
 versioning start at that release. Branch protection on main: 1
 approving review required, stale reviews dismissed, force pushes and
 deletions disabled (verified from the protection API). Topics set
-(15). Four red-team rounds and 17+ simulated stack combinations have
-run against the skill; their findings are the regression batteries in
-tests/.
+(15). Red-team rounds and simulated stack combinations run against
+every pre-release state until a complete round returns zero findings;
+their findings are the regression batteries in tests/.

@@ -12,7 +12,7 @@ This is a daily health and security report method designed by
 ElectroHire, generalized to any stack, published as an open agent
 skill.
 
-**Status: pre-release, version 0.2.0.** The skill is public for review
+**Status: pre-release, version 0.4.0.** The skill is public for review
 and is being iterated against red teams and simulated stacks until a
 complete verification round finds no issues. The first release will be
 v1.0.0; versioning is semantic from that release, with a changelog
@@ -97,7 +97,7 @@ aee/                  the AEE claim/evidence pack for the method
 ## Run the tests
 
 ```bash
-python3 -m unittest discover -s tests -v   # 91 tests, no dependencies
+python3 -m unittest discover -s tests -v   # the full suite, no dependencies
 ```
 
 ## Documentation

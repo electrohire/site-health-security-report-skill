@@ -22,7 +22,7 @@ WHAT CHANGED SINCE THE LAST REPORT
 - {{change_2}}
 
 TRAFFIC & {{edge_name}} — grade {{traffic_grade}}
-- Requests: {{requests}} (7-day average {{requests_avg}}). Unique visitors: {{uniques}}. Page views: {{page_views}}. (Until a full week of editions exists: write "not available, first edition" or "average of the last {{n}} editions"; comparison figures are never invented to fill the line.)
+- Requests: {{requests}} ({{requests_avg_text}}). Unique visitors: {{uniques}}. Page views: {{page_views}}. (Fill {{requests_avg_text}} with "7-day average {{requests_avg}}", or until a full week of editions exists "average of the last {{n}} editions" or "not available, first edition"; comparison figures are never invented to fill the line.)
 - Responses: {{success_share}} success (2xx, the request worked); client errors (4xx, the request was refused or missing) {{four_xx}} — of those "not found" (404, the page or file does not exist) {{n404}}; server errors (5xx, the origin failed to answer) {{five_xx}}.
 - {{burst_or_anomaly_paragraph — apply the burst rule before writing the word outage}}
 - Top paths and countries: {{top_paths_countries}}
