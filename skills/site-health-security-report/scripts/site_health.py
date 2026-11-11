@@ -631,6 +631,13 @@ def _validate_config(cfg):
                                or not _EMAIL_RE.search(sender)):
         errors.append("sender must contain an email address (a bare name "
                       "cannot send)")
+    items = cfg.get("standing_items")
+    if items is not None and (not isinstance(items, list)
+                              or any(not isinstance(x, str) or not x.strip()
+                                     for x in items)):
+        errors.append("standing_items must be a list of strings (the "
+                      "closure annotation 'closed <date>' is appended to "
+                      "the entry's text)")
     brand = cfg.get("brand")
     if brand is not None and (not isinstance(brand, dict)
                               or not str(brand.get("display_name") or "").strip()):
@@ -922,8 +929,11 @@ def validate_run(cfg, findings, report_text, kind="edition"):
         configured = _scan_value(scanning.get(kind_key, ""))
         # The assertion layer (round 13): naming a scanner for a kind
         # the config records as 'none' is a contradiction even when the
-        # kind carries no evidence this edition.
-        if configured == "none" and _scan_value((used or {}).get(kind_key, "")):
+        # kind carries no evidence this edition. A scanners_used value
+        # of 'none' itself is the honest mirror of the config, not an
+        # assertion (round 14, matching the record line's treatment).
+        _asserted = _scan_value((used or {}).get(kind_key, ""))
+        if configured == "none" and _asserted and _asserted != "none":
             problems.append(f"findings scanners_used names a {kind_key} "
                             f"scanner but the config records {kind_key} "
                             f"scanning as 'none'")
@@ -1115,24 +1125,34 @@ def _record_line_problems(report_text, scanning):
         configured = _scan_value(scanning.get(kind_key, ""))
         if configured == "none":
             # Assertion layer (round 13): the line must not credit any
-            # scanner for a kind the config records as 'none'.
+            # scanner for a kind the config records as 'none'. Credit
+            # shapes mirror the configured path (round 14): attribution
+            # segments test their credited name, and a shape-less role
+            # segment is itself the credit target.
+            _role_only = _scan_value(" ".join(_ROLE_WORDS[kind_key]))
             for record in records:
                 segments = re.split(r"[,;·|•]|\band\b", record)
-                for seg in segments:
-                    if any(rw in seg.lower() for rw in _ROLE_WORDS[kind_key]) \
-                            and (" by " in seg.lower() or ":" in seg
-                                 or "(" in seg):
-                        credited = _scan_value(_credited_name(seg))
-                        if credited and credited != "none":
-                            problems.append(
-                                f"a Scanners of record line credits a "
-                                f"{kind_key} scanner ('{credited}') but the "
-                                f"config records {kind_key} scanning as "
-                                f"'none'")
-                            break
-                else:
-                    continue
-                break
+                role_segments = [seg for seg in segments
+                                 if any(rw in seg.lower()
+                                        for rw in _ROLE_WORDS[kind_key])]
+                attributions = [seg for seg in role_segments
+                                if " by " in seg.lower() or ":" in seg
+                                or "(" in seg]
+                targets = [_credited_name(seg) for seg in attributions] \
+                    if attributions else role_segments
+                credited_hit = None
+                for t in targets:
+                    credited = _scan_value(t)
+                    if credited and credited != "none" \
+                            and credited != _role_only:
+                        credited_hit = credited
+                        break
+                if credited_hit:
+                    problems.append(
+                        f"a Scanners of record line credits a "
+                        f"{kind_key} scanner ('{credited_hit}') but the "
+                        f"config records {kind_key} scanning as 'none'")
+                    break
             continue
         if configured == "":
             continue

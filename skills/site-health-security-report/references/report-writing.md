@@ -55,12 +55,20 @@ correction — name its date). The block sits after the new
 recommendations in the template layout; within the block, last
 edition's items come first and nothing new is added there.
 
-Comparisons, defined (round 12): the 7-day average is the arithmetic
-mean of the daily request totals in the previous seven editions' edge
-records, rounded to the nearest whole request; with fewer previous
-editions it is the mean of those available, and the template line
-says so. Unique visitors and page views compare against yesterday's
-edition. Dependency totals compare against the previous edition —
+Comparisons, defined (round 12, cadence-corrected round 14):
+comparisons pair like with like, in covering-period units. The
+Requests figure (the covering period's total) compares against the
+previous covering period's total, and the baseline average is the
+mean of the daily request totals over the previous seven covering
+days, rounded to the nearest whole request — for a daily deployment
+that is the previous seven editions; for a weekly deployment it is
+the previous edition's covering week, and the line prints it as a
+per-day figure beside the week's own daily average, never as a
+"7-day average" of edition totals. With less history it is the mean
+of the covering days available, and the template line says so.
+Unique visitors and page views compare against the previous edition
+("yesterday" at daily cadence, "last week" at weekly). Dependency
+totals compare against the previous edition —
 except the first edition after a scanner change: its counts are not
 like-for-like with the old scanner's, so the edition prints them with
 an explicit "the scanner changed, not the code" note in WHAT CHANGED
@@ -74,7 +82,12 @@ entry is annotated `closed <date>` — annotated, never deleted, so the
 history survives. A same-day correction is sent before that day's
 edition, so the edition can report corrected facts in the past tense.
 
-## First editions and clean days
+The self-run technical audit runs every edition and its line prints
+every edition as a spot check; it is the SEO score source only when
+both the checker and PageSpeed returned nothing for the covering
+period, and the edition labels it as the source only then.
+
+## First editions and clean editions
 
 - First edition: "WHAT CHANGED SINCE THE LAST REPORT" reads "first
   edition: no previous report", the follow-up block reads "none (first
@@ -82,7 +95,7 @@ edition, so the edition can report corrected facts in the past tense.
 - A leg graded A carries no "Why a" cause line; the template prints
   "no downgrade causes" there instead. Cause lines exist only for
   grades below A, and the grading tool returns them.
-- On an all-clean day, recommendations are maintenance, honestly
+- On an all-clean edition, recommendations are maintenance, honestly
   labelled: backlog burn-down (the medium/low counts), upcoming
   expiries, the next scheduled rotation. If there is genuinely nothing,
   say "no new recommendations; standing items continue" rather than

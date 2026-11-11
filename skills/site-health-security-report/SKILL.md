@@ -13,7 +13,7 @@ report for a website, in plain language, for busy owners. It is the method
 designed by ElectroHire and generalized to any stack, so the
 originating company's projects are not part of the method.
 
-The report answers five questions every day, with evidence:
+The report answers five questions every edition, with evidence:
 
 1. Could people reach the site, and what did traffic actually look like?
 2. Can search engines and AI crawlers find and quote it (SEO/AEO)?

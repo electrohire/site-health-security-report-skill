@@ -38,10 +38,17 @@ Security sub-grade at C unless a worse band already applies:
 
 ## Traffic & reliability causes
 
+Cadence: every share and count in this rubric is computed over the
+edition's covering period (a day at daily cadence, a week at weekly).
+An outage confirmed for any part of the covering period counts for
+that edition.
+
+
+
 - 5xx share of traffic: at or under 0.1% is normal noise; above that up
   to and including 0.5% is minor (B, and the cause line names the
   figures); over 0.5% up to 2% is a noticeable problem (C); over 2% or
-  repeated problems across days is repeated reliability trouble (D); a
+  repeated problems across editions is repeated reliability trouble (D); a
   confirmed primary-host outage is F. An elevated 404 share behaves the
   same way: over 5% up to and including 10% is B; over 10% is C.
 - Apply the burst rule first: traffic concentrated in one client address
@@ -53,8 +60,9 @@ Security sub-grade at C unless a worse band already applies:
   automatic outage.
 - Burst-to-grade procedure: (1) classify the burst from its four
   segmentation figures; (2) attribute the burst's errors to the event;
-  (3) the findings file's `five_xx_share` is the residual, (the day's
-  total 5xx minus the burst's 5xx) divided by the day's total requests;
+  (3) the findings file's `five_xx_share` is the residual, (the covering
+  period's total 5xx minus the burst's 5xx) divided by the covering
+  period's total requests;
   (4) `outage_confirmed` is set true only when the classification is
   "outage" and the primary host was actually down. The thresholds, as
   the tool computes them (integer-exact): one client address at 60% or

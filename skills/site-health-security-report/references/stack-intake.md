@@ -52,8 +52,9 @@ report written without it has produced a real error somewhere.
    name, a file path.)
 9. What name and address should the report send from, and through which
    sending service on your own domain?
-10. What timezone should the report's day be computed in, and at what
-    time should it arrive?
+10. What timezone should the report's covering period be computed in,
+    and at what time should it arrive? (At weekly cadence, also record
+    the covering convention, e.g. Monday to Sunday.)
 11. What display name and accent color should the report carry?
 
 Record "unknown" honestly where the user does not know; the first edition

@@ -79,7 +79,7 @@ with evidence pointers). The sender runs only on a full pass.
   failed, record the printed id first, before anything else; an
   unrecorded send gets re-sent when the idempotency window lapses.
 - Backlog: a missed edition is sent before today's, marked as a late
-  edition; a backlog older than one missed day is surfaced for an owner
+  edition; a backlog older than one missed edition is surfaced for an owner
   decision instead of being sent automatically.
 - No fallback route improvisation: if the configured route fails, the
   edition is saved, marked UNSENT, and surfaced with the reason.

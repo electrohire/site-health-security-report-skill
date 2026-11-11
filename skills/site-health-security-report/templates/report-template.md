@@ -4,10 +4,10 @@ SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 White-label report template. {{placeholders}} come from the config and
 the run's evidence records. Delete this comment before sending.
 -->
-{{brand.display_name}} daily report — {{weekday}}, {{date}} (covering {{covering_date}})
+{{brand.display_name}} {{cadence}} report — {{weekday}}, {{date}} (covering {{covering_text}})
 From: {{sender}} · To: {{recipients.to}} · Cc: {{recipients.cc}}
 <!-- sender comes from the config's `sender` field; every placeholder in this template is filled by hand or by your own renderer from the config, the findings file, and the edition's evidence records (references/findings-schema.md says which is which). -->
-Subject: {{brand.display_name}} daily report — {{date_short}}: overall grade {{overall}}
+Subject: {{brand.display_name}} {{cadence}} report — {{date_short}}: overall grade {{overall}}
 
 OVERALL GRADE: {{overall}}
 {{one_line_summary}}
@@ -22,7 +22,7 @@ WHAT CHANGED SINCE THE LAST REPORT
 - {{change_2}}
 
 TRAFFIC & {{edge_name}} — grade {{traffic_grade}}
-- Requests: {{requests}} ({{requests_avg_text}}). Unique visitors: {{uniques}} (yesterday {{uniques_yesterday}}). Page views: {{page_views}} (yesterday {{page_views_yesterday}}). (Fill {{requests_avg_text}} with "7-day average {{requests_avg}}", or until a full week of editions exists "average of the last {{n}} editions" or "not available, first edition"; comparison figures are never invented to fill the line.)
+- Requests: {{requests}} ({{requests_avg_text}}). Unique visitors: {{uniques}} ({{previous_period}} {{uniques_previous}}). Page views: {{page_views}} ({{previous_period}} {{page_views_previous}}). (Cadence fills: {{cadence}} is "daily" or "weekly"; {{covering_text}} is the covering date, or the covering range at weekly cadence; {{previous_period}} is "yesterday" or "last week". Fill {{requests_avg_text}} at daily cadence with "7-day average {{requests_avg}}", or until a full week of editions exists "average of the last {{n}} editions" or "not available, first edition"; at weekly cadence with "previous week {{requests_previous_week}}; daily average {{requests_daily_avg}} (previous week {{requests_daily_avg_previous}})". On the first edition, omit every comparison parenthetical and the dependency delta: no comparison figures appear anywhere, and they are never invented to fill the line.)
 - Responses: {{success_share}} success (2xx, the request worked); client errors (4xx, the request was refused or missing) {{four_xx}} — of those "not found" (404, the page or file does not exist) {{n404}}; server errors (5xx, the origin failed to answer) {{five_xx}}.
 - {{burst_or_anomaly_paragraph — apply the burst rule before writing the word outage}}
 - Top paths and countries: {{top_paths_countries}}
