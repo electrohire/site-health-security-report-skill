@@ -209,7 +209,9 @@ Full discipline: `references/verification.md` and
 Authorization: the owner approves the first edition and any change to
 recipients, sending route, or schedule before it takes effect; the
 signed-off config is the standing authorization for scheduled editions
-under it. A change to the stack itself is an amendment with its own
+under it. The authorization attaches to the owner: a change of owner
+voids it, and nothing sends until the incoming owner approves (see
+"Change of owner" in references/verification.md). A change to the stack itself is an amendment with its own
 discipline (owner approval, partial re-intake, versioned config
 history): see "Amending a signed-off config" in
 references/stack-intake.md. A correction that changes a grade needs

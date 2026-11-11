@@ -264,7 +264,8 @@ of the change, the departing owner's own access to the edge, the
 code host, and the sending account is revoked or rotated, and the
 run record notes it. A correction to a pre-change edition follows
 the Corrections rule: it validates against the config that
-governed that edition and is addressed to the current recipients.
+governed that edition and is addressed to the current recipients;
+if it changes a grade, the incoming owner approves it.
 
 ## Corrections
 

@@ -53,7 +53,9 @@ that edition.
   repeated problems across editions is repeated reliability trouble (D); a
   confirmed primary-host outage is F. A confirmed side-host outage
   caps Traffic at D with the host named, and a side-host outage day
-  counts toward repeated reliability like an outage day. An elevated 404 share behaves the
+  counts toward repeated reliability like an outage day, under the
+  same administrative exclusion (a suspension or billing outage of
+  either host class does not count). An elevated 404 share behaves the
   same way: over 5% up to and including 10% is B; over 10% is C.
 - Apply the burst rule first: traffic concentrated in one client address
   or on a non-primary host is a scanner/probe event. It is reported as a
