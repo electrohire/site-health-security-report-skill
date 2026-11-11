@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 ElectroHire Inc.
+# SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 """Round 16 regressions: the 'none'-kind credit test knows the full
 recognized scanner vocabulary (including the commercial tools), and
 code_host_ci is a known config key."""

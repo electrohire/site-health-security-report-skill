@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 ElectroHire Inc.
+# SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 """Round 13 regressions: a scanner assertion for a config-'none' kind
 is a contradiction at both layers (findings scanners_used and the
 printed record line), and the certificate boundary is under 14 days."""

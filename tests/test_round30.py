@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 ElectroHire Inc.
+# SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 """Round 30 regressions: the subject line's overall grade is
 checked like every other occurrence; huge integers never crash
 the loader or the grader; the remaining intake fields are

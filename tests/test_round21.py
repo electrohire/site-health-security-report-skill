@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 ElectroHire Inc.
+# SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 """Round 21 regressions: platform vulnerabilities count into the
 Security grade, and an unverified site backup is a named cap."""
 

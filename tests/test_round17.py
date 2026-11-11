@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 ElectroHire Inc.
+# SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 """Round 17 regressions: the stack-selection page carries the prices
 it claims to carry, and the template's null-score clause matches the
 grader (the leg grades from the remaining score)."""

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 ElectroHire Inc.
+# SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 """Round 11 regressions: first-grade heading rule at any parenthetical
 depth, doubly displaced post-name negation."""
 

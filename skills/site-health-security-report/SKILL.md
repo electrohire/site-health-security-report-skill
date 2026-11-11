@@ -95,6 +95,9 @@ silently.
    assistants disclose that they are AI at first interaction; cookie
    consent is visible; a data-request route is published. Report each as
    pass, fail, or not-testable, from the page's own text only.
+   Where the feature a check concerns does not exist (no AI
+   assistant on the site, for example), the check is not-testable
+   with that reason, never a pass, and is not counted as a fail.
 
 Each leg writes its findings into the edition's findings file; the exact
 field names, types, and units are specified in

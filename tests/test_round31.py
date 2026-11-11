@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 ElectroHire Inc.
+# SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 """Round 31 regressions: grade statements in the skill's own house
 phrasings are cross-checked (overall grade is/=/- forms, bare and
 conjunction-less section headings, per-leg colons on the

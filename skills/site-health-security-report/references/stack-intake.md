@@ -122,7 +122,8 @@ discipline as sign-off:
    closed when an edition's own records show its condition resolved;
    that edition states the evidence, and the entry is annotated
    `closed <date>` in the config, never deleted. The date is the
-   closing edition's covering date. Adding an item mid-run is not an
+   closing edition's covering date, meaning the covering period's
+   end date for a multi-day cadence. Adding an item mid-run is not an
    amendment and needs no approval; record it in the run log. An
    event-type item whose closure evidence no leg can produce (an
    incident's entry point, for example) may be closed by the owner's

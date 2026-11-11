@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 ElectroHire Inc.
+# SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 """Round 28 regressions: the CLI never tracebacks on operator file
 slips (a directory, an unreadable or non-UTF-8 file, a BOM JSON),
 and check-run answers a structurally invalid config with its own

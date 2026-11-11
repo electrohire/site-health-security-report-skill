@@ -69,7 +69,10 @@ recommendations in the template layout; within the block, last
 edition's items come first and nothing new is added there. An
 item reported "no movement" is re-issued in the new
 recommendations until it is done or withdrawn, so a stalled item
-never silently drops out of the chain.
+never silently drops out of the chain. The same applies to an
+item reported "in progress": it stays in the new recommendations
+until it is done or withdrawn, so an open item never lives only
+in the follow-up block.
 
 A straddling edition (a stack amendment mid-period) composes its
 traffic figures from both sources: additive counts (requests,
@@ -101,7 +104,8 @@ like-for-like with the old scanner's, so the edition prints them with
 an explicit "the scanner changed, not the code" note in WHAT CHANGED
 and beside the counts, and the comparison chain restarts from that
 edition. When a headline series (a score, an error share, an alert
-count) has moved in the same direction in at least 3 successive
+count, or a traffic total such as requests, uniques, or page views)
+has moved in the same direction in at least 3 successive
 edition-to-edition comparisons, WHAT CHANGED names the trend and
 its span, even when no single edition's move is large: a slow
 decline is a fact of the run, not of any one day.

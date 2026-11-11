@@ -368,9 +368,11 @@ def grade_security(f):
                     or value < 0:
                 raise InputError(f"security.platform.{key} must be a "
                                  f"non-negative integer, got {value!r}")
-        if not platform.get("source"):
-            raise InputError("security.platform.source must name the "
-                             "platform advisory source")
+        if not isinstance(platform.get("source"), str) \
+                or not platform["source"].strip():
+            raise InputError("security.platform.source must be a "
+                             "non-empty string naming the platform "
+                             "advisory source")
         if platform["critical"] > 0:
             grade = _cap(grade, "D")
             causes.append(f"{platform['critical']} critical platform "
@@ -926,7 +928,11 @@ def validate_report(text, findings=None, kind="edition"):
     # a different statement: normalize them away before pattern
     # matching ('grade: **F**', '<b>F</b>', '<span><b>F</b></span>').
     low = re.sub(r"</?[a-z][^>]*>", " ", low)
-    low = re.sub(r"(\*\*|__|\*|_)([a-f])\1", r"\2", low)
+    for _ in range(4):
+        stripped = re.sub(r"(\*\*+|__+|\*|_|~~|`)\s*([a-f])\s*\1", r"\2", low)
+        if stripped == low:
+            break
+        low = stripped
     if kind == "correction":
         for section in ("correction", "what was wrong", "what is correct"):
             if section not in low:
@@ -1058,6 +1064,22 @@ def validate_run(cfg, findings, report_text, kind="edition"):
         problems.append(f"findings: {e}")
         return _dedupe(problems), warnings
     problems.extend(validate_report(report_text, findings, kind=kind))
+    side_outage = ((findings.get("traffic") or {})
+                   .get("side_host_outage") or {})
+    if side_outage.get("host"):
+        primary = cfg.get("primary_host")
+        side_hosts = [s.get("host") for s in cfg.get("side_hosts") or []
+                      if isinstance(s, dict)]
+        if side_outage["host"] == primary:
+            problems.append(
+                "traffic.side_host_outage names the primary host; a "
+                "primary-host outage is established by the burst "
+                "record and grades F, not through the side-host path")
+        elif side_outage["host"] not in side_hosts:
+            problems.append(
+                "traffic.side_host_outage names a host that is not "
+                "one of the config's side_hosts; a side-host outage "
+                "is recorded for a configured side host")
     sec = findings.get("security", {})
     scanning = cfg.get("scanning") or {}
     app_platform = cfg.get("app_platform")
@@ -1386,8 +1408,19 @@ def _addressish(line):
             return False  # prose lead-in ('Copies To ...'), not an address list
     if not tokens:
         return False
-    if re.search(r"<[^>]*@[^>]*>", line):
-        return True  # an angle-bracketed address, whatever the name's case
+    bracket = re.search(r"<[^>]*@[^>]*>", line)
+    if bracket:
+        # An angle-bracketed address with only name words before it
+        # and nothing after it is an address in 'Name <addr>' form,
+        # whatever the name's case. A sentence that merely mentions
+        # one is prose, and prose can neither pollute nor satisfy a
+        # header set.
+        before = line[:bracket.start()].strip(" ,;·|")
+        after = line[bracket.end():].strip(" ,;·|")
+        if not after and before and all(
+                t.replace("'", "").replace("-", "").isalpha()
+                for t in before.split()):
+            return True
     for tok in tokens:
         core = tok.strip(",;·|")
         if "@" in core or core in ("and", "&"):

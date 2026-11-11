@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 ElectroHire Inc.
+# SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 """Round 9 regressions: secrets attribution names the credited scanner,
 unified heading tails, clause-scoped negation, all-caps header lines,
 intervening labels, CLI argument shapes."""

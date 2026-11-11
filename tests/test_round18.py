@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 ElectroHire Inc.
+# SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 """Round 18 regressions: classification_pending is a real schema
 state (traffic leg ungraded, overall incomplete), it contradicts a
 present burst record, and the stack-selection page's WAF sentence is

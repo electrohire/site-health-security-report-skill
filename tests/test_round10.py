@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 ElectroHire Inc.
+# SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 """Round 10 regressions: parenthetical credit form, title-case prose
 header lines, nested parenthetical heading tails, displaced post-name
 negation."""

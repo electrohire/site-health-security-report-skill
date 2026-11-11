@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 ElectroHire Inc.
+# SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 """Round 7 regressions: heading conjunctions, record-line attribution,
 wrapped lines and fences, header prose isolation, DMARC tag edges."""
 

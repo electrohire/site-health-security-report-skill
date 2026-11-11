@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 ElectroHire Inc.
+# SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 """Round 29 regressions: the never-a-traceback guarantee covers the
 network command and pathological JSON too, and --kind accepts only
 its two values."""

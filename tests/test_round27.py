@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 ElectroHire Inc.
+# SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 """Round 27 regression: a report file saved with a UTF-8 BOM by a
 consumer editor validates exactly like the same report without
 one (the CLI reads report text as utf-8-sig)."""

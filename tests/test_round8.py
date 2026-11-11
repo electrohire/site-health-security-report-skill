@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 ElectroHire Inc.
+# SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 """Round 8 regressions: attribution separators, bullet variants,
 negation shapes, label-shaped header lines, header past line 15,
 heading prose false positives."""

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 ElectroHire Inc.
+# SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 """Round 14 regressions: the honest 'none' mirror value is not an
 assertion, the dash-form record-line credit is caught for 'none'
 kinds, and standing_items has an enforced shape."""

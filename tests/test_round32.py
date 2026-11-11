@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 ElectroHire Inc.
+# SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 """Round 32 regressions: emphasis-wrapped grades are checked; the
 corrected-grades line takes the edition line's forms; a bare
 heading whose only separator is a colon is checked; the DMARC

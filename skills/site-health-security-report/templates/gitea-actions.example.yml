@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 ElectroHire Inc.
+# SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 # Gitea Actions pipeline for the fallback scanning stack
 # (OSV-Scanner, Semgrep, gitleaks): the Gitea counterpart of the
 # Bitbucket and Azure pipeline templates. Place as

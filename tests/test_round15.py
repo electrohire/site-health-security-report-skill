@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 ElectroHire Inc.
+# SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 """Round 15 regressions: the 'none'-kind record-line check credits
 only actual scanner names — bare role phrases, negated mentions, and
 parenthetical remarks are not credits; real credits still flag."""

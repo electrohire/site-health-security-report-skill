@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2026 ElectroHire Inc.
+# SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 """Round 12 regressions: SKILL.md frontmatter for spec-conformant
 discovery, the dependencies 'none' contradiction, address shape
 validation, and the rubric boundary wording."""
