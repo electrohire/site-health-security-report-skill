@@ -34,7 +34,7 @@ steps:
     displayName: SAST (Semgrep)
   - script: |
       docker run --rm -v "$(Build.SourcesDirectory):/repo" ghcr.io/google/osv-scanner:latest \
-        --recursive --format json --output /repo/out/osv.json /repo || true
+        --recursive --format json --output-file /repo/out/osv.json /repo || true
     displayName: Dependency scan (OSV-Scanner)
   - task: PublishBuildArtifacts@1
     inputs:

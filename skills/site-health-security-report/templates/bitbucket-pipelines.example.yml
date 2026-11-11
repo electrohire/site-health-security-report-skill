@@ -23,7 +23,7 @@ definitions:
               semgrep --config auto --json --output /src/out/semgrep.json /src || true
           # Dependencies: OSV-Scanner over lockfiles
           - docker run --rm -v "$BITBUCKET_CLONE_DIR:/repo" ghcr.io/google/osv-scanner:latest
-              --recursive --format json --output /repo/out/osv.json /repo || true
+              --recursive --format json --output-file /repo/out/osv.json /repo || true
           # Publish to durable storage (Bitbucket artifacts expire)
           - pipe: atlassian/aws-s3-deploy:1.3.8
             variables:

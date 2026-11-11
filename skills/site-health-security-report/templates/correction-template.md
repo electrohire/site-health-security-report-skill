@@ -27,3 +27,7 @@ replaced, or stand.}}
 backdated into the covering day's grade.}}
 
 We are sorry for the error. The process fix on our side is {{process_fix}}.
+(A correction that completes a classification-pending edition is a
+planned completion, not an admission: the closing reads "We are
+sorry for the incomplete edition." and What was wrong states the
+missing classification.)

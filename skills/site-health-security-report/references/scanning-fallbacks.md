@@ -28,7 +28,7 @@ security-scan:
   steps:
     - gitleaks detect --redact --report-format json --report-path out/gitleaks.json
     - semgrep scan --config auto --json --output out/semgrep.json
-    - osv-scanner -r . --format json --output out/osv.json   # or: trivy fs . --format json
+    - osv-scanner -r . --format json --output-file out/osv.json   # or: trivy fs . --format json
   artifacts: out/   # retained at least 35 days so a daily report always has a fresh record (and a weekly one several)
   policy: the pipeline does NOT fail the build by default in week 1.
           It reports. Failing builds on day one is how scanners get

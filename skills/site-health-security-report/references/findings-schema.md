@@ -28,7 +28,7 @@ are not measurements.
 
 | Field | Type | Meaning |
 |---|---|---|
-| `five_xx_share` | number 0–1 | Residual server-error share of requests, **after** burst segmentation (see grading.md) |
+| `five_xx_share` | number 0–1 | Residual server-error share of requests, **after** burst segmentation (see grading.md). In the `classification_pending` state no residual exists yet: carry the raw unsegmented share; the grader ignores it while the flag is set |
 | `four_04_share` | number 0–1 | "Not found" share of requests |
 | `outage_confirmed` | boolean | True only when the burst rule classifies the day as a primary-host outage and the primary host was actually down |
 | `classification_pending` | boolean, optional | True when an error spike's segmentation was unavailable at send time: no burst record, the traffic leg is not graded, and the overall is incomplete until the classification lands |

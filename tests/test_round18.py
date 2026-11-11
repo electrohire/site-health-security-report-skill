@@ -41,6 +41,16 @@ class TestRound18(unittest.TestCase):
         with self.assertRaises(sh.InputError):
             sh.compute_grades(f)
 
+    def test_pending_contradiction_holds_on_the_outage_path(self):
+        f = base_findings()
+        f["traffic"]["outage_confirmed"] = True
+        f["traffic"]["classification_pending"] = True
+        f["traffic"]["burst"] = {
+            "total_errors": 100, "top_single_ip_errors": 7,
+            "primary_host_errors": 90, "top_single_host_errors": 90}
+        with self.assertRaises(sh.InputError):
+            sh.compute_grades(f)
+
     def test_waf_sentence_is_qualified(self):
         page = open(os.path.join(ROOT, "docs", "stack-selection.md")).read()
         self.assertIn("the full managed WAF rulesets start at Pro",

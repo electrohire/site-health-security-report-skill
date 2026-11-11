@@ -7,7 +7,7 @@ the run's evidence records. Delete this comment before sending.
 {{brand.display_name}} {{cadence}} report — {{weekday}}, {{date}} (covering {{covering_text}})
 From: {{sender}} · To: {{recipients.to}} · Cc: {{recipients.cc}}
 <!-- sender comes from the config's `sender` field; every placeholder in this template is filled by hand or by your own renderer from the config, the findings file, and the edition's evidence records (references/findings-schema.md says which is which). -->
-Subject: {{brand.display_name}} {{cadence}} report — {{date_short}}: overall grade {{overall}}
+Subject: {{brand.display_name}} {{cadence}} report — {{date_short}}: overall grade {{overall}} (when the overall is incomplete, the subject carries it too: "overall grade {{overall}} (incomplete)")
 
 OVERALL GRADE: {{overall}}
 {{one_line_summary}}

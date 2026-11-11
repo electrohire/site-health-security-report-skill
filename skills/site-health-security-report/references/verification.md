@@ -94,7 +94,9 @@ with evidence pointers). The sender runs only on a full pass.
 - Exactly once: an idempotency key per edition (`report-<date>`,
   `correction-<date>`), checked against the send log before sending,
   matched on the key, never on the subject line (subjects embed the
-  grade and can change between runs).
+  grade and can change between runs). The incident note follows the
+  same discipline with the key `incident-<date>`: check the log for
+  it before sending, and verify it from the send record after.
 - Verify from the send record: the provider's accepted id, appended to
   the send log and read back. If the send succeeded but the log write
   failed, record the printed id first, before anything else; an
@@ -174,8 +176,12 @@ continue under it. The handover is still a recorded event:
 
 A correction is a send like any other: corrected file, full gate and
 validation re-run (`check-run --kind correction` against the corrected
-findings), recipients copied from the config, its own
-idempotency key, verified from its send-log line. The config the
+findings, saved as `findings-corrected.json` beside the as-sent
+`findings.json`, which stands unmodified), recipients copied from the
+config, its own idempotency key, verified from its send-log line. A
+correction's own outcomes (its process fix, any commitment it made)
+are reported in the next edition's follow-up block as an extra,
+explicitly labelled line. The config the
 correction validates against is the config version that governed the
 corrected edition (kept per the amendment discipline in
 stack-intake.md), not the current config: after a stack change, the

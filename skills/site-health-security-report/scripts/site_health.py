@@ -452,6 +452,12 @@ def grade_traffic(f):
         raise InputError(f"traffic.outage_confirmed is {str(outage).lower()} but the "
                          f"burst record classifies as '{classification}': the claim "
                          f"and the record disagree, and the record governs")
+    if f.get("classification_pending") and classification is not None:
+        _req_bool(f, "classification_pending", "traffic")
+        raise InputError("traffic.classification_pending is true but a "
+                         "traffic.burst record is present: the "
+                         "classification has landed, so clear the flag "
+                         "and grade on the record")
     if outage:
         causes = ["the primary host was confirmed down (burst record: primary host "
                   "carried at least half the errors, no single client dominating)"]
