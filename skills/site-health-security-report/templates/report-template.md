@@ -29,7 +29,7 @@ TRAFFIC & {{edge_name}} — grade {{traffic_grade}}
 Why a {{traffic_grade}}: {{traffic_causes}}
 
 SEO / AEO — grade {{seo_grade}}
-- AEO score ({{aeo_checker}}, scan {{aeo_scan_id}}): {{aeo_score}}/100. {{aeo_detail}} (When a score is null, replace this bullet with "{{aeo_checker}}: not available. The checker returned no result for this run; no score is carried over." and grade the leg not available.)
+- AEO score ({{aeo_checker}}, scan {{aeo_scan_id}}): {{aeo_score}}/100. {{aeo_detail}} (When a score is null, replace this bullet with "{{aeo_checker}}: not available. The checker returned no result for this run; no score is carried over." The leg grades from the remaining score; it is not available only when both scores are null.)
 - SEO score ({{seo_source_label}}, {{seo_scan_ref}}): {{seo_score}}/100. {{seo_detail}}
 - Self-run on-page audit: {{audit_passed}} of 15.
 Why a {{seo_grade}}: {{seo_causes}}

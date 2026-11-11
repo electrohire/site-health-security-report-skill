@@ -44,6 +44,15 @@ checked for internal freshness: a file's name or existence is not
 evidence; its internal date or requested window must match the covering
 period.
 
+One disposition the gate needs in advance: for an error spike whose
+segmentation is not yet available at send time, the edition sends on
+schedule with the spike reported as an error spike, classification
+pending; it makes no outage claim and grades traffic on the figures
+that exclude the spike only when those are separately known. When the
+segmentation lands, a correction follows the same day if the story
+changes. Holding the edition silently is not an option; neither is
+grading the raw share as if it were the residual.
+
 ## Independent validation
 
 The edition's mechanical validation is `check-run` (config, findings,

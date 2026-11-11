@@ -9,6 +9,24 @@ the report recommends from this page, in the open, with prices and
 trade-offs. Prices are 2026 list-price shapes, not quotes; verify at
 purchase time.
 
+Prices at a glance (list prices, checked November 2026):
+
+- Cloudflare: Free $0; Pro $20 per month billed annually ($25 billed
+  monthly) per domain — the managed WAF rulesets start at Pro.
+- GitHub Advanced Security, per active committer per month: Code
+  Security $30 (CodeQL), Secret Protection $19, $49 for both;
+  Dependabot alerts themselves are free on every plan.
+- Azure DDoS: Network Protection $2,944 per month per protection
+  plan; IP Protection $199 per month per public IP (see
+  references/adapters-edge.md).
+- AWS Shield Advanced: about $3,000 per month per organization,
+  1-year commitment (see references/ddos.md).
+- The pipeline fallback stack (Semgrep, gitleaks, OSV-Scanner) is
+  open source: $0 in licences, paid in pipeline minutes and upkeep.
+- Commercial scanners (Snyk, SonarQube Cloud, Mend) price per
+  developer or per project on their own sites; budget them from
+  those pages, not from this one.
+
 ## The reference stack (what "ideal" looks like for a small web business)
 
 | Layer | First recommendation | Why |

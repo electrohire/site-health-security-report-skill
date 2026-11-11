@@ -155,6 +155,10 @@ Full discipline: `references/verification.md` and
    log), never from a sent-items folder the route does not use.
 5. Corrections are sends too: same gate, same validation, same recipients
    copied from the config, never re-typed.
+6. An F grade or a confirmed outage does not wait for the schedule:
+   the owner is told the same day through the config's route (an
+   incident note, not an edition), and the next edition reports it in
+   the ordinary way.
 
 Authorization: the owner approves the first edition and any change to
 recipients, sending route, or schedule before it takes effect; the
