@@ -137,6 +137,18 @@ is the lowest sub-grade. Every downgrade names its cause in one line.
 `scripts/site_health.py` computes the grades from a findings file so two
 runs on the same evidence cannot disagree.
 
+## Multiple deployments
+
+One operator may run several deployments from one machine. Each
+deployment lives in its own folder holding its `config.local.json`,
+its send log, its evidence folders, and its editions; never compose
+an edition with another deployment's config or records open as the
+source, and never share one store across customers (each config
+names recipients and credential locations — a shared store is a
+cross-customer exposure). Idempotency keys are per deployment
+because the send logs are; every path in the commands below is
+inside the deployment's folder.
+
 ## Write, verify, validate, then send
 
 Full discipline: `references/verification.md` and
