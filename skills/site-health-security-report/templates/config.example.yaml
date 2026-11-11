@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: 2026 ElectroHire Inc.
+# Site Health & Security Report config (YAML mirror of config.example.json).
+# The JSON file is the config of record (the tools read JSON); this YAML
+# is the human-readable form. Keep the two in sync.
+# Every field is a stack-intake answer; see references/stack-intake.md.
+# edge_credential records WHERE the credential lives, never its value.
+
+site_name: Example Co
+primary_host: example.com
+side_hosts:
+  - { host: api.example.com, role: api }
+  - { host: staging.example.com, role: staging }
+  - { host: app.example.com, role: workspace }
+edge_provider: cloudflare        # cloudflare | aws-cloudfront | azure-front-door | fastly | akamai | sucuri | other | none
+edge_credential: "location only, never the value: vault entry 'example-co/cloudflare-analytics' (read-only, zone-scoped)"
+code_host: github                # github | gitlab | bitbucket | azure-devops | gitea | codeberg | other
+# code_host_instance: saas       # optional: saas | self-managed (matters for gitlab/azure-devops feature tiers)
+sender: "Example Co Reports <reports@send.example.com>"
+repositories: [example/web, example/api]
+scanning:
+  dependencies: dependabot       # or: osv-scanner | trivy | npm-audit | snyk | none
+  sast: codeql                   # or: semgrep | codeql-cli | sonarqube | none (never "native" on bitbucket)
+  secrets: secret-scanning       # or: gitleaks | trufflehog | gitguardian | none
+hosting: aws
+staging:
+  url: https://staging.example.com
+  branch: staging
+  promotion: "local merge staging -> main, guard files verified in the staged tree"
+recipients:
+  to: [owner@example.com]
+  cc: []
+owners: { edge: Pat, code: Sam, content: Jo, business: Owner }
+sending_route: "resend, from reports@send.example.com, reply-to owner@example.com"
+schedule: "daily 08:30"
+timezone: America/Detroit
+standing_items: []
+brand:
+  display_name: Example Co
+  logo_url: https://example.com/logo.png
+  accent_color: "#1f6f43"

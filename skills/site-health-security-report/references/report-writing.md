@@ -1,0 +1,67 @@
+<!--
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 ElectroHire Inc.
+-->
+# Writing the report
+
+## Voice and shape
+
+Plain language for busy owners. Headline grade and a one-line summary
+first, then the sections of `templates/report-template.md`. Numbers
+always carry a comparison (yesterday, the 7-day average, or the last
+edition). Name every HTTP status code in plain English at first use
+("404, the page does not exist"). No raw dumps, no framework scores
+without a sentence saying what they mean.
+
+Non-scored checker tips are reported as tips, never as failed items. A
+scan result the tooling cannot name is stated once as a standing
+unknown with the date first observed, not re-narrated daily.
+
+## Source discipline
+
+- Compose only from this run's saved evidence records. A sub-checker's
+  or a helper agent's summary is a lead to verify, never a source; when
+  a summary and a record disagree, the record governs and the conflict
+  is resolved before composing, never after sending.
+- Every score carries this run's identifier (scan id, report id, or
+  timestamp). A previous day's score is never presented as today's; if
+  no new scan could run, the section says so and uses the fallback
+  chain, labelled.
+- Fallback chain for SEO: primary checker, then PageSpeed Insights,
+  then the self-run audit. Never present a fallback number as the
+  primary checker's number. PageSpeed mechanics: use the **SEO category
+  score** from the PageSpeed Insights report for the exact audited URL,
+  and record the report URL and timestamp as this run's identifier.
+  The self-run audit converts to a score as passed/15 x 100 and is
+  labelled "self-run on-page audit" wherever it is used.
+
+## The self-run on-page audit (15 checks)
+
+HTTPS on; title present and 10 to 70 characters; meta description
+present and 50 to 200 characters; exactly one canonical tag; meta
+robots sane; viewport set; exactly one H1; no skipped heading levels;
+image alt coverage at least 70%; internal links present; robots.txt,
+sitemap.xml, and llms.txt reachable; page weight sane; response time
+measured. Report as "self-run on-page audit: N of 15".
+
+## Recommendations
+
+Three to five, ranked by impact, each with a named owner from the
+config. A recommendation that names no owner is a wish. Close the loop:
+each edition states what happened to last edition's recommendations
+(done, in progress, no movement), from evidence, before adding new
+ones.
+
+## First editions and clean days
+
+- First edition: "WHAT CHANGED SINCE THE LAST REPORT" reads "first
+  edition: no previous report", the follow-up block reads "none (first
+  edition)", and no comparison figures appear anywhere.
+- A leg graded A carries no "Why a" cause line; the template prints
+  "no downgrade causes" there instead. Cause lines exist only for
+  grades below A, and the grading tool returns them.
+- On an all-clean day, recommendations are maintenance, honestly
+  labelled: backlog burn-down (the medium/low counts), upcoming
+  expiries, the next scheduled rotation. If there is genuinely nothing,
+  say "no new recommendations; standing items continue" rather than
+  inventing work.

@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: 2026 ElectroHire Inc.
+# Example Bitbucket Pipelines security scanning for hosts with no native
+# scanning (references/scanning-fallbacks.md). Bitbucket pipeline
+# artifacts are short-lived, so the publish step copies the JSON reports
+# to a durable store (an S3 bucket here); the report's leg 3 reads them
+# from there, exactly as it would read native alerts.
+# Week 1: run in report-only mode (no build failure on findings) while
+# the team triages the backlog; then remove `|| true` per scanner.
+image: atlassian/default-image:4
+
+definitions:
+  steps:
+    - step: &scan
+        name: Security scans (secrets, SAST, dependencies)
+        script:
+          - mkdir -p out
+          # Secrets: full-history scan (also run once at setup over all history)
+          - docker run --rm -v "$BITBUCKET_CLONE_DIR:/repo" zricethezav/gitleaks:latest
+              detect --source /repo --report-format json --report-path /repo/out/gitleaks.json || true
+          # SAST: Semgrep with the auto ruleset configuration
+          - docker run --rm -v "$BITBUCKET_CLONE_DIR:/src" semgrep/semgrep:latest
+              semgrep --config auto --json --output /src/out/semgrep.json /src || true
+          # Dependencies: OSV-Scanner over lockfiles
+          - docker run --rm -v "$BITBUCKET_CLONE_DIR:/repo" ghcr.io/google/osv-scanner:latest
+              --recursive --format json --output /repo/out/osv.json /repo || true
+          # Publish to durable storage (Bitbucket artifacts expire)
+          - pipe: atlassian/aws-s3-deploy:1.3.8
+            variables:
+              AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+              AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+              AWS_DEFAULT_REGION: $AWS_DEFAULT_REGION
+              S3_BUCKET: $SCAN_REPORTS_BUCKET
+              LOCAL_PATH: out
+              S3_KEY: "$BITBUCKET_REPO_FULL_NAME/$BITBUCKET_BUILD_NUMBER"
+        artifacts:
+          paths:
+            - out/**
+
+pipelines:
+  branches:
+    main:
+      - step: *scan
+    develop:
+      - step: *scan
+  custom:
+    nightly-full-scan:
+      - step: *scan   # schedule this nightly in the Bitbucket UI

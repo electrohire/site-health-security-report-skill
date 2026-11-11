@@ -1,0 +1,54 @@
+<!--
+SPDX-License-Identifier: MIT
+SPDX-FileCopyrightText: 2026 ElectroHire Inc.
+-->
+# Stack intake (required before the first report)
+
+Ask the user, record the answers in the report config, and confirm the
+config back to them before the first edition. Every field exists because a
+report written without it has produced a real error somewhere.
+
+| Field | Why it matters |
+|---|---|
+| Primary hostname (e.g. `example.com`) | The outage definition applies to this host. |
+| Side hostnames with roles (API, staging, app/workspace, admin) | Error bursts on side hosts are graded as events on that host, never as primary-site outages. |
+| Edge / CDN / DDoS provider | Decides which analytics API and which DDoS controls the report checks (Cloudflare, CloudFront + WAF/Shield, Azure Front Door + WAF, Fastly, Akamai, none). |
+| Edge analytics credential | Must be read-only and scoped to the one site/zone. Never a global key. Record **where it lives** (vault entry name), never its value; the saved config must be safe to commit in redacted form and is named `config.local.json` (git-ignored). |
+| Code-host access | Read-only in the same way: a scoped read token where the host supports one. Where the agent instead uses the user's existing signed-in CLI session, record that fact here; that session is never used to write. |
+| Sender identity | The From display name and address on the customer's own sending domain (the report template's sender comes from this field, not from prose). |
+| Code host instance | Optional but recorded for GitLab/Azure DevOps: `saas` or `self-managed` (feature tiers and scanner availability differ). |
+| Code host and organization | Decides the scanning source (GitHub, GitLab, Bitbucket, Azure DevOps, Gitea). |
+| Repository list (the product set) | The report covers a named set, not "everything in the org". |
+| Scanning stack actually in place | Native (Dependabot/CodeQL, GitLab SAST, ...) or pipeline fallbacks (Semgrep, gitleaks, Trivy, OSV-Scanner, Snyk). Record which, per scan type: dependencies, SAST, secrets. |
+| Hosting / origin | Decides TLS and origin-protection checks, and where staging lives. |
+| Staging setup | Staging URL, branch, promotion path. "None" is a finding, not a blocker. |
+| Report recipients and owners | To/Cc, and the named owner for each recommendation class (edge, code, content, business decision). |
+| Sending route | The customer's own sending account on their verified domain (e.g. Resend, SES, SendGrid, Microsoft 365). The skill never sends from the agent's accounts. |
+| Schedule and timezone | Daily or weekly, the delivery time, and the timezone the "previous day" is computed in. Edge analytics days are usually UTC; the report says so when it matters. |
+| Tracked standing items | Named, dated items graded until verified closed (a production CVE, a cert renewal, a migration). |
+| Brand (white-label) | Display name, logo URL, accent color, sender display name for the HTML template. |
+
+## Intake questions (ask verbatim, one short list)
+
+1. What is the site's main web address, and what other hosts belong to it
+   (API, staging, app, admin)?
+2. What sits in front of it, if anything: Cloudflare, AWS CloudFront,
+   Azure, Fastly, something else, or nothing?
+3. Where does the code live: GitHub, GitLab, Bitbucket, Azure DevOps,
+   somewhere else? Which repositories are the product?
+4. What scans the code today for vulnerable dependencies, code flaws, and
+   leaked secrets, if anything does?
+5. Where is it hosted, and is there a staging site? How do changes reach
+   production?
+6. Who should receive the report, how often, and who owns fixing what it
+   finds?
+7. Is there anything already known-broken or being watched that the
+   report should track until it is verified fixed?
+
+Record "unknown" honestly where the user does not know; the first edition
+then treats closing that unknown as a recommendation. Note that the
+config validator requires every field above to be present: an honest
+"none" or a named placeholder passes; a silently absent field does not.
+The owner approves the completed config (and any later change to
+recipients, route, or schedule) before editions run under it: the
+signed-off config is the standing send authorization.
