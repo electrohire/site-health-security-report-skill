@@ -15,7 +15,7 @@ writer's mood. Overall grade = the lowest of the three sub-grades.
 | A | No critical or high open (a medium/low backlog does not by itself lower the grade) | 90+ | No 5xx problem |
 | B | (the security leg has no B: it holds A until the first named cause caps it at C) | 80-89 | Minor issues only |
 | C | Any high open | 70-79 | A noticeable error problem |
-| D | Any critical open | 50-69 | Repeated reliability problems |
+| D | Any critical open | 50-69 | Repeated reliability problems, or a confirmed side-host outage |
 | F | Critical with a public exploit in production, or a confirmed compromise of the site | Under 50 | Site down (primary host, per the burst rule) |
 
 ## Named downgrade causes (Security & code health)
@@ -51,7 +51,9 @@ that edition.
   to and including 0.5% is minor (B, and the cause line names the
   figures); over 0.5% up to 2% is a noticeable problem (C); over 2% or
   repeated problems across editions is repeated reliability trouble (D); a
-  confirmed primary-host outage is F. An elevated 404 share behaves the
+  confirmed primary-host outage is F. A confirmed side-host outage
+  caps Traffic at D with the host named, and a side-host outage day
+  counts toward repeated reliability like an outage day. An elevated 404 share behaves the
   same way: over 5% up to and including 10% is B; over 10% is C.
 - Apply the burst rule first: traffic concentrated in one client address
   or on a non-primary host is a scanner/probe event. It is reported as a

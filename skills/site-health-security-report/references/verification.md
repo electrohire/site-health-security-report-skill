@@ -24,7 +24,8 @@ the config's recipients — this deployment's recipients only; one
 deployment's records are never disclosed to another's (SKILL.md,
 Multiple deployments) —
 through the config's sending route, is authorized by the same
-sign-off. It carries the idempotency key `incident-<date>` and a
+sign-off. It carries the idempotency key `incident-<date>`
+(`incident-<deployment>-<date>` in a multiple-deployment setup) and a
 send-log line like any send; it is a note, not an edition, so it needs
 no gate or validation, and its facts come from the day's saved
 records. Its content: what happened, the evidence for it, and what
@@ -109,13 +110,15 @@ with evidence pointers). The sender runs only on a full pass.
 ## Send discipline
 
 - Exactly once: an idempotency key per edition (`report-<date>`,
-  `correction-<date>`; in a multiple-deployment setup the key
+  `correction-<date>`; in a multiple-deployment setup every key
   carries the deployment's folder name,
-  `report-<deployment>-<date>`; the date is the covering period's end date —
+  `report-<deployment>-<date>`, `correction-<deployment>-<date>`,
+  `incident-<deployment>-<date>`; the date is the covering period's end date —
   for a weekly edition, its last covering day), checked against the send log before sending,
   matched on the key, never on the subject line (subjects embed the
   grade and can change between runs). The incident note follows the
-  same discipline with the key `incident-<date>`: check the log for
+  same discipline with the key `incident-<date>` (scoped with the
+  deployment's name where keys are scoped): check the log for
   it before sending, and verify it from the send record after.
 - Verify from the send record: the provider's accepted id, appended to
   the send log and read back. If the send succeeded but the log write
@@ -242,13 +245,36 @@ continue under it. The handover is still a recorded event:
    or rotated at the handover; the incoming operator confirms the
    rotation in their first editions' run records.
 
+## Change of owner
+
+The standing authorization attaches to the owner: it does not
+transfer when the business or the site changes hands. On a change
+of owner, nothing sends on the departing owner's sign-off. The
+incoming owner approves the config (confirmed back in plain
+language, as at intake) and the first edition under their
+ownership before it sends; the superseded config is preserved as
+a versioned file, as under the amendment discipline. Recipients
+change only by the incoming owner's approval, and the departing
+owner comes off the list from the first send under the new
+ownership. Scanner existence is re-verified through the adapter
+read paths under the new sign-off. Everything else carries over:
+the comparison history, the follow-up chain, the standing items,
+and the send log are the deployment's, not the owner's. As part
+of the change, the departing owner's own access to the edge, the
+code host, and the sending account is revoked or rotated, and the
+run record notes it. A correction to a pre-change edition follows
+the Corrections rule: it validates against the config that
+governed that edition and is addressed to the current recipients.
+
 ## Corrections
 
 A correction is a send like any other: corrected file, full gate and
 validation re-run (`check-run --kind correction` against the corrected
 findings, saved as `findings-corrected.json` beside the as-sent
 `findings.json`, which stands unmodified), recipients copied from the
-config, its own idempotency key, verified from its send-log line. A
+current config at send time (validation, below, uses the governing
+config; the two are different on purpose — a correction is addressed
+to the people who receive the report now), its own idempotency key, verified from its send-log line. A
 correction's own outcomes (its process fix, any commitment it made)
 are reported in the next edition's follow-up block as an extra,
 explicitly labelled line; that line also restates any recommendation
