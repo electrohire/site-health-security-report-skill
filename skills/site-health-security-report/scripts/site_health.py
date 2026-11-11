@@ -729,14 +729,14 @@ SUBGRADES_LINE = re.compile(
 # grade C"). Patterns are anchored to line starts so ordinary prose
 # mentioning a grade is not mistaken for a section verdict.
 SECTION_GRADE_PATTERNS = [
-    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*traffic\s*(?:&|and|-)[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\([^)\n]*\))?\s*(?:</h[1-6]>)?[^\w\n]*$")),
-    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*seo\s*(?:/|&|and|-)\s*aeo[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\([^)\n]*\))?\s*(?:</h[1-6]>)?[^\w\n]*$")),
-    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*security\s*(?:&|and|-)[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\([^)\n]*\))?\s*(?:</h[1-6]>)?[^\w\n]*$")),
+    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*traffic\s*(?:&|and|-)[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\([^)\n]*\)?)?\s*(?:</h[1-6]>)?[^\w\n]*$")),
+    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*seo\s*(?:/|&|and|-)\s*aeo[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\([^)\n]*\)?)?\s*(?:</h[1-6]>)?[^\w\n]*$")),
+    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*security\s*(?:&|and|-)[^\n]*?[\u2014\u2013:\u00b7-][^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\([^)\n]*\)?)?\s*(?:</h[1-6]>)?[^\w\n]*$")),
 ]
 SECTION_GRADE_PATTERNS_END = [
-    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*traffic\s*(?:&|and|-)[^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*$")),
-    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*seo\s*(?:/|&|and|-)\s*aeo[^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*$")),
-    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*security\s*(?:&|and|-)[^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*$")),
+    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*traffic\s*(?:&|and|-)[^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\([^)\n]*\)?)?\s*(?:</h[1-6]>)?[^\w\n]*$")),
+    ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*seo\s*(?:/|&|and|-)\s*aeo[^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\([^)\n]*\)?)?\s*(?:</h[1-6]>)?[^\w\n]*$")),
+    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_-]*security\s*(?:&|and|-)[^\n]*?grade\s*:?\s+([A-Fa-f])\b[^\w\n]*(?:\([^)\n]*\)?)?\s*(?:</h[1-6]>)?[^\w\n]*$")),
 ]
 OVERALL_PATTERN = re.compile(r"overall grade:\s*([A-Fa-f])\b")
 CORRECTED_OVERALL_PATTERN = re.compile(r"corrected overall grade is\s+([A-Fa-f])\b")
@@ -973,15 +973,18 @@ def _contains_words(words, phrase_words):
 
 _NEGATORS = {"not", "never", "no", "none", "nor"}
 _NEG_FOLLOW = {"used", "use", "ran", "run", "running", "employed",
-               "selected", "chosen"}
+               "selected", "chosen", "enabled", "deployed", "configured",
+               "installed", "active"}
 
 
 def _phrase_present(words, phrase_words):
     """A phrase counts only where at least one occurrence is not negated.
-    Negation is a negator within five words before the phrase ('not a
-    single one of X'), or a negator within two words after it followed by
-    a verb of use ('X was not used'). The affirming construction 'not
-    only X' is removed before checking."""
+    Negation is a negator within eight words before the phrase ('not one
+    single one of the following X'), or a negator within two words after
+    it followed by a verb of use ('X was never enabled'). The affirming
+    construction 'not only X' is removed before checking. Callers pass
+    one clause at a time, so a negation in another clause cannot bleed
+    across."""
     cleaned = []
     i = 0
     while i < len(words):
@@ -995,7 +998,7 @@ def _phrase_present(words, phrase_words):
     for i in range(len(words) - n + 1):
         if words[i:i + n] != phrase_words:
             continue
-        if any(w in _NEGATORS for w in words[max(0, i - 5):i]):
+        if any(w in _NEGATORS for w in words[max(0, i - 8):i]):
             continue
         after = words[i + n:i + n + 3]
         negated_after = any(
@@ -1008,11 +1011,27 @@ def _phrase_present(words, phrase_words):
 
 
 def _line_names_scanner(line, token):
-    words = _words(line)
-    if _phrase_present(words, _words(token.replace("-", " "))):
-        return True
-    return any(_phrase_present(words, _words(alias))
-               for alias in SCANNER_DISPLAY_ALIASES.get(token, []))
+    phrases = [_words(token.replace("-", " "))]
+    phrases += [_words(a) for a in SCANNER_DISPLAY_ALIASES.get(token, [])]
+    for clause in re.split(r"[.;]", line or ""):
+        words = _words(clause)
+        if any(_phrase_present(words, p) for p in phrases):
+            return True
+    return False
+
+
+def _credited_name(segment):
+    """The scanner an attribution segment actually credits: the text
+    after the last ' by ', or after the segment's label colon. For the
+    secrets kind the scanner's word form IS the role phrase ('secret
+    scanning'), so the whole segment cannot be the test; the credited
+    name is."""
+    low = (segment or "").lower()
+    if " by " in low:
+        return segment[low.rfind(" by ") + 4:]
+    if ":" in segment:
+        return segment.split(":", 1)[1]
+    return segment
 
 
 _ROLE_WORDS = {
@@ -1066,7 +1085,8 @@ def _record_line_problems(report_text, scanning):
                                     for rw in _ROLE_WORDS[kind_key])]
             attributions = [seg for seg in role_segments
                             if " by " in seg.lower() or ":" in seg]
-            targets = attributions if attributions else \
+            targets = [_credited_name(seg) for seg in attributions] \
+                if attributions else \
                 ([" ".join(role_segments)] if role_segments else [record])
             if not all(_line_names_scanner(t, configured) for t in targets):
                 problems.append(
@@ -1093,6 +1113,9 @@ def _addressish(line):
     if re.match(r"^[A-Za-z][\w .-]*:\s", line.strip()):
         return False
     tokens = [t for t in re.split(r"\s+", line.strip()) if t]
+    if any("@" not in t and t.strip(",;·|").isupper()
+           and len(t.strip(",;·|")) >= 3 for t in tokens):
+        return False  # all-caps prose ('COPIES TO ...'), not an address list
     if not tokens:
         return False
     for tok in tokens:
@@ -1136,6 +1159,8 @@ def _header_problems(cfg, report_text):
         seg_lines = block[m.end():end].splitlines()
         kept = seg_lines[:1]
         for extra in seg_lines[1:]:
+            if re.match(r"^[A-Za-z][\w .-]*:\s", extra.strip()):
+                continue  # an intervening labelled line is skipped, not read
             if _addressish(extra):
                 kept.append(extra)
             else:
@@ -1187,11 +1212,28 @@ def _load_json(path):
     return data
 
 
+def _split_kind(args):
+    """Split an optional '--kind correction|edition' pair out of the
+    argument list. Only the flag's own value is consumed, so a findings
+    file literally named 'correction' stays a positional argument."""
+    kind = "edition"
+    rest = []
+    i = 0
+    while i < len(args):
+        if args[i] == "--kind" and i + 1 < len(args):
+            kind = args[i + 1]
+            i += 2
+        else:
+            rest.append(args[i])
+            i += 1
+    return kind, rest
+
+
 def main(argv):
     try:
-        if len(argv) < 2:
+        if len(argv) < 2 or argv[1] in ("-h", "--help"):
             print(__doc__)
-            return 1
+            return 0 if len(argv) >= 2 else 1
         cmd = argv[1]
         if cmd == "headers" and len(argv) == 3:
             result = check_headers(fetch_headers(argv[2]))
@@ -1221,10 +1263,7 @@ def main(argv):
                 print("OK: config is complete and valid")
             return 1 if errors else 0
         if cmd == "validate-report" and len(argv) in (3, 4, 5, 6):
-            kind = "correction" if "--kind" in argv and \
-                argv[argv.index("--kind") + 1:][:1] == ["correction"] else "edition"
-            args = [a for a in argv[2:] if a != "--kind" and a != "correction"
-                    and a != "edition"]
+            kind, args = _split_kind(argv[2:])
             try:
                 text = open(args[0]).read()
             except FileNotFoundError:
@@ -1245,10 +1284,7 @@ def main(argv):
                     print("OK: report structure and grades agree with the findings")
             return 1 if problems else 0
         if cmd == "check-run" and len(argv) in (5, 6, 7):
-            kind = "correction" if "--kind" in argv and \
-                argv[argv.index("--kind") + 1:][:1] == ["correction"] else "edition"
-            args = [a for a in argv[2:] if a != "--kind" and a != "correction"
-                    and a != "edition"]
+            kind, args = _split_kind(argv[2:])
             if len(args) != 3:
                 print(__doc__)
                 return 1
