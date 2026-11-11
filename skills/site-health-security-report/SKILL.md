@@ -291,6 +291,41 @@ never as a silent gap:
 - No staging environment: recommend the branch-staging pattern above
   before any redesign work.
 
+## Defects in this skill
+
+If, while using this skill, you find a defect in the skill itself —
+a rule that cannot be performed as written, the grading tool
+misbehaving, two of its documents disagreeing, an adapter
+instruction that no longer matches its provider — record it
+immediately, before working around it: file an issue in the
+skill's own repository (electrohire/site-health-security-report-skill)
+using its bug report template, after a quick check that an open
+issue does not already cover it. Say what the documents prescribe,
+what happened instead, the skill version, and the stack involved.
+Then continue the run with the honest fallback (state the gap in
+the edition's records, as with any unmeasured leg). A finding about
+the site being reported is not a skill defect: it goes in the
+edition, never in the skill's repository. Security defects in the
+skill itself follow the repository's SECURITY.md route, not a
+public issue.
+
+## Keeping the skill current
+
+The skill is maintained upstream, and a deployment should not drift
+silently onto an old version. Once per edition, when composing it,
+check for an update: compare this skill's VERSION against the
+latest release of its repository
+(electrohire/site-health-security-report-skill). The check is
+read-only, runs at the report's own cadence and no more often, and
+never blocks or delays the edition; if it cannot be performed, note
+that in the run record and continue. When a newer version exists,
+do not update mid-run and never update silently: name the new
+version and its changelog entry in the edition, and let the owner
+decide. Adopting an update is a change like an amendment: it takes
+effect between editions, on the owner's approval, and the next
+edition states the version it was composed under. When no newer
+version exists, the check leaves no trace in the edition.
+
 ## What this skill must never do
 
 - Never invent a number, a scan result, or a send confirmation.

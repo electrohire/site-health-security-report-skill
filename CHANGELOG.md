@@ -49,5 +49,16 @@ verification round returned zero findings (round 38).
   Cursor, Windsurf, Copilot, Gemini CLI, and Aider.
 - A 265-test unit suite (stdlib only) covering the grading core,
   the validator, and every hardening round's regressions.
+- Defect reporting, built in: the README's "Reporting bugs"
+  section and the skill's own "Defects in this skill" rule
+  instruct every agent using the skill to file a defect in this
+  repository the moment one is found, so every issue is recorded
+  for triage; the maintainers check the repository's issues
+  daily.
+- Update checks, built in: the skill's "Keeping the skill
+  current" rule has the agent check for a newer release once
+  per edition, at the report's own cadence, and surface it to
+  the owner for an approved, between-editions adoption, never a
+  silent or mid-run update.
 
 [1.0.0]: https://github.com/electrohire/site-health-security-report-skill/releases/tag/v1.0.0

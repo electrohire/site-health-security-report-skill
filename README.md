@@ -117,10 +117,32 @@ for the spec, plan, and task list, and [`aee/claims.md`](aee/claims.md)
 for the claims the method makes, each with its falsifier and the
 evidence that backs it.
 
-## Contributing and security
+## Reporting bugs
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Report vulnerabilities through
-[SECURITY.md](SECURITY.md), never in a public issue.
+Every defect in this skill gets recorded, immediately, so it can be
+triaged: a rule that cannot be performed as written, a validator or
+grading bug, two documents that disagree, an adapter instruction
+that no longer matches its provider. File it as an issue in this
+repository using the bug report template, with the skill version,
+the stack involved, what the documents say, and what happened
+instead. The skill instructs agents that use it to do exactly this
+the moment they hit a defect, before working around it (see
+"Defects in this skill" in the skill itself). Findings about a
+*deployed site* are not bugs in this skill: those belong in that
+site's own report, never in this repository. The maintainers check
+this repository's issues daily.
+
+## Staying current
+
+The skill instructs agents that use it to check this repository's
+latest release once per report edition, at the report's own
+cadence, and to surface a newer version to the owner rather than
+updating silently: adoption happens between editions, on the
+owner's approval, after reading the changelog.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for changes. Report
+vulnerabilities through [SECURITY.md](SECURITY.md), never in a
+public issue.
 
 ## License
 
