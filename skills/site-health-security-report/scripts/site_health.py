@@ -1426,7 +1426,7 @@ def main(argv):
         if cmd == "validate-report" and len(argv) in (3, 4, 5, 6):
             kind, args = _split_kind(argv[2:])
             try:
-                text = open(args[0]).read()
+                text = open(args[0], encoding="utf-8-sig").read()
             except FileNotFoundError:
                 raise InputError(f"file not found: {args[0]}")
             except IndexError:
@@ -1452,7 +1452,7 @@ def main(argv):
             cfg = _load_json(args[0])
             findings = _load_json(args[1])
             try:
-                text = open(args[2]).read()
+                text = open(args[2], encoding="utf-8-sig").read()
             except FileNotFoundError:
                 raise InputError(f"file not found: {args[2]}")
             problems, warnings = validate_run(cfg, findings, text, kind=kind)
