@@ -34,7 +34,7 @@ are not measurements.
 | `classification_pending` | boolean, optional | True when an error spike's segmentation was unavailable at send time: no burst record, the traffic leg is not graded, and the overall is incomplete until the classification lands |
 | `outage_note` | string, optional | The recorded cause of a confirmed outage when it is not an origin failure (host suspension, provider action, billing): carried into the edition's cause line. An administratively caused outage does not count toward `repeated_reliability_problems` |
 | `burst` | object, required when a burst was segmented | The segmentation record (`total_errors`, `top_single_ip_errors`, `primary_host_errors`, `top_single_host_errors`). The grader classifies it and requires the classification to agree with `outage_confirmed`; an outage claim without the record is an input error |
-| `repeated_reliability_problems` | boolean, optional | True when the residual (post-segmentation) 5xx share was above the B band (over 0.5%) in at least 2 of the last 7 editions including the current one (the run records are the evidence; an outage day counts, a reclassified burst does not, and an administratively caused outage — host suspension, billing — does not) |
+| `repeated_reliability_problems` | boolean, optional | True when the residual (post-segmentation) 5xx share was above the B band (over 0.5%) in at least 2 of the last 7 editions including the current one (or of all editions so far, when fewer than 7 exist) (the run records are the evidence; an outage day counts, a reclassified burst does not, and an administratively caused outage — host suspension, billing — does not) |
 
 ## seo_aeo
 

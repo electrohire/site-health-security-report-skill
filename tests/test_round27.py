@@ -32,7 +32,7 @@ class TestRound27(unittest.TestCase):
         src = open(os.path.join(os.path.dirname(__file__), "..", "skills",
                                 "site-health-security-report", "scripts",
                                 "site_health.py")).read()
-        self.assertEqual(src.count('encoding="utf-8-sig"'), 2)
+        self.assertGreaterEqual(src.count('encoding="utf-8-sig"'), 2)
 
 
 if __name__ == "__main__":

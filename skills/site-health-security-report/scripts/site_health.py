@@ -951,6 +951,11 @@ def validate_run(cfg, findings, report_text, kind="edition"):
     problems = []
     errors, warnings = _validate_config(cfg)
     problems.extend(f"config: {e}" for e in errors)
+    if errors:
+        # A structurally invalid config cannot be cross-checked: its
+        # fields cannot be dereferenced safely, and its own error
+        # list is the answer the operator needs.
+        return _dedupe(problems), warnings
     try:
         compute_grades(findings)
     except InputError as e:
@@ -1362,10 +1367,12 @@ def _load_json(path):
         raise InputError("YAML is a human-readable mirror only. The config of record "
                          "is JSON: convert the file to JSON (same fields) and re-run.")
     try:
-        with open(path) as fh:
+        with open(path, encoding="utf-8-sig") as fh:
             data = json.load(fh, parse_constant=_reject_constant)
     except FileNotFoundError:
         raise InputError(f"file not found: {path}")
+    except (OSError, UnicodeDecodeError) as e:
+        raise InputError(f"cannot read {path}: {e}")
     except json.JSONDecodeError as e:
         raise InputError(f"invalid JSON in {path}: {e}")
     if not isinstance(data, dict):
@@ -1429,6 +1436,8 @@ def main(argv):
                 text = open(args[0], encoding="utf-8-sig").read()
             except FileNotFoundError:
                 raise InputError(f"file not found: {args[0]}")
+            except (OSError, UnicodeDecodeError) as e:
+                raise InputError(f"cannot read {args[0]}: {e}")
             except IndexError:
                 print(__doc__)
                 return 1
@@ -1455,6 +1464,8 @@ def main(argv):
                 text = open(args[2], encoding="utf-8-sig").read()
             except FileNotFoundError:
                 raise InputError(f"file not found: {args[2]}")
+            except (OSError, UnicodeDecodeError) as e:
+                raise InputError(f"cannot read {args[2]}: {e}")
             problems, warnings = validate_run(cfg, findings, text, kind=kind)
             for w in warnings:
                 print("WARNING:", w)

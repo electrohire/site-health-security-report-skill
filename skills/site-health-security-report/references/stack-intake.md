@@ -114,7 +114,8 @@ discipline as sign-off:
    period ends after the amendment takes effect; an edition whose
    covering period straddles the change is composed under the amended
    config and narrates the switch in WHAT CHANGED.
-5. `standing_items` is a list of strings. A standing item is verified
+5. `standing_items` is a list of strings. An item states its
+   closure condition when it is added. A standing item is verified
    closed when an edition's own records show its condition resolved;
    that edition states the evidence, and the entry is annotated
    `closed <date>` in the config, never deleted. The date is the
