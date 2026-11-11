@@ -13,8 +13,11 @@ side_hosts:
   - { host: staging.example.com, role: staging }
   - { host: app.example.com, role: workspace }
 edge_provider: cloudflare        # cloudflare | aws-cloudfront | azure-front-door | fastly | akamai | sucuri | other | none
+edge_tier: free                  # optional: the edge plan tier, when it matters to the advice
 edge_credential: "location only, never the value: vault entry 'example-co/cloudflare-analytics' (read-only, zone-scoped)"
 code_host: github                # github | gitlab | bitbucket | azure-devops | gitea | codeberg | other
+code_host_access: "location only: name where the read-only code-host credential lives, never its value"
+code_host_ci: github-actions     # optional: the CI the pipeline scanners run under, where the host offers a choice
 # code_host_instance: saas       # optional: saas | self-managed (matters for gitlab/azure-devops feature tiers)
 sender: "Example Co Reports <reports@send.example.com>"
 repositories: [example/web, example/api]

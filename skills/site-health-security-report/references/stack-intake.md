@@ -60,7 +60,9 @@ report written without it has produced a real error somewhere.
 Record "unknown" honestly where the user does not know; the first edition
 then treats closing that unknown as a recommendation. Note that the
 config validator requires the table's fields to be present (the optional
-extras are `code_host_instance`, `edge_tier`, and `code_host_addons`,
+extras are `code_host_instance`, `edge_tier`, `code_host_addons`, and
+`code_host_ci` (the CI system the pipeline scanners run under, where
+the host offers a choice — Gitea Actions vs Woodpecker on Gitea),
 recorded when they apply): an honest "none" or a named placeholder
 passes; a silently absent field does not. (The organization half of
 "code host and organization" lives inside the repository paths

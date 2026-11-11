@@ -520,7 +520,7 @@ VALID_CODEHOST = {"github", "gitlab", "bitbucket", "azure-devops",
 NON_NATIVE_HOSTS = {"bitbucket", "azure-devops", "gitea", "codeberg"}
 KNOWN_CONFIG_KEYS = set(REQUIRED_CONFIG_FIELDS) | {
     "code_host_instance", "code_host_addons", "code_host_access",
-    "edge_tier", "notes"}
+    "code_host_ci", "edge_tier", "notes"}
 
 # Recognized scanning vocabulary. Anything else is rejected: an invented
 # tool name in the config would otherwise certify coverage that does not
@@ -1009,8 +1009,8 @@ _ROLE_ONLY_NAMES = {"dependency scanning", "code scanning",
 _KNOWN_SCANNER_NAMES = sorted(
     ({_scan_value(k) for k in SCANNER_DISPLAY_ALIASES}
      | {_scan_value(a) for v in SCANNER_DISPLAY_ALIASES.values() for a in v}
-     | {_scan_value(t) for t in ("dependabot", "codeql", "gitleaks",
-                                 "semgrep")})
+     | {_scan_value(t) for names in RECOGNIZED_SCANNING.values()
+        for t in names})
     - _ROLE_ONLY_NAMES - {"", "none"},
     key=lambda s: -len(s.split()))
 

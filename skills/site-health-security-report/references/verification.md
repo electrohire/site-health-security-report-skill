@@ -32,8 +32,10 @@ edition against the saved record it came from:
 - for any day with an error spike or an outage claim: the segmentation
   record exists, the burst classification was run on it, and the
   edition's traffic story (and the findings' `outage_confirmed`) match
-  the classification. A figure can trace perfectly and still be the
-  wrong story; this item checks the story.
+  the classification — including that the findings' `five_xx_share` is
+  the post-segmentation residual (grading.md's burst procedure, step
+  3), not the raw zone-wide share. A figure can trace perfectly and
+  still be the wrong story; this item checks the story.
 
 A figure that cannot be traced is corrected from the record, or dropped
 and stated as not available, before sending. The gate's result (figures
@@ -128,6 +130,26 @@ improvisation:
    that needs it says so.
 6. An edition sent late the same day says so in WHAT CHANGED; the
    covering period is not skipped.
+
+## Operator handover
+
+The standing authorization attaches to the owner and the signed-off
+config, not to the operator: a change of operator alone is not a
+first edition, a config change, or an amendment, and editions may
+continue under it. The handover is still a recorded event:
+
+1. What transfers: the config and its versioned history, the evidence
+   store, the send log, the credential locations, the off-machine
+   copies (whose custodian is named), and the open standing items.
+2. The incoming operator validates the inherited config, re-verifies
+   each scanner's existence through its adapter read path, and
+   checks send-log continuity before their first edition.
+3. The owner is told the operator has changed, and the handover is
+   recorded in the run log.
+4. End of service: the departing operator's access to the vault
+   entries, the sending account, and the code-host token is revoked
+   or rotated at the handover; the incoming operator confirms the
+   rotation in their first editions' run records.
 
 ## Corrections
 
