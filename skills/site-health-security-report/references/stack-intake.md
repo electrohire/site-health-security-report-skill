@@ -26,7 +26,7 @@ report written without it has produced a real error somewhere.
 | Staging setup | Staging URL, branch, promotion path, recorded as an object; or the bare string "none". "None" is a finding, not a blocker. |
 | Report recipients and owners | To/Cc, and the named owner for each recommendation class (edge, code, content, business decision). |
 | Sending route | The customer's own sending account on their verified domain (e.g. Resend, SES, SendGrid, Microsoft 365). The skill never sends from the agent's accounts. |
-| Schedule and timezone | Daily or weekly, the delivery time, and the timezone the "previous day" is computed in. Edge analytics days are usually UTC; the report says so when it matters. |
+| Schedule and timezone | Daily, weekly, or monthly, the delivery time, and the timezone the "previous day" is computed in. Edge analytics days are usually UTC; the report says so when it matters. |
 | Tracked standing items | Named, dated items graded until verified closed (a production CVE, a cert renewal, a migration). |
 | Application platform (`app_platform`, optional) | A platform whose components update separately from the code (WordPress, a CMS): which platform, and the advisory source leg 3 reads. |
 | Site backups (`site_backups`, optional) | How the site itself is backed up and when a backup was last verified; feeds findings' `site_backups_verified`. |

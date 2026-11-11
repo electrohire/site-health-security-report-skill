@@ -60,8 +60,10 @@ site broke badly we might not be able to bring it back."
 Close the loop:
 each edition states what happened to last edition's recommendations,
 from evidence, one line per item in the Follow-up block, with one of
-four outcomes: done, in progress, no movement, or withdrawn (by a
-correction — name its date). An item completed as a step inside a
+five outcomes: done, in progress, no movement, withdrawn (by a
+correction — name its date), or declined (the owner decided against
+it — record the decision and its date; a declined item leaves the
+chain and is not re-issued). An item completed as a step inside a
 later edition's recommendation is reported done in that edition's
 follow-up block with a cross-reference to the procedure that
 completed it. The block sits after the new
@@ -97,13 +99,19 @@ per-day figure beside the week's own daily average, never as a
 "7-day average" of edition totals. With less history it is the mean
 of the covering days available, and the template line says so.
 Unique visitors and page views compare against the previous edition
-("yesterday" at daily cadence, "last week" at weekly). Dependency
+("yesterday" at daily cadence, "last week" at weekly, "last month"
+at monthly). Dependency
 totals compare against the previous edition —
 except the first edition after a scanner change: its counts are not
 like-for-like with the old scanner's, so the edition prints them with
 an explicit "the scanner changed, not the code" note in WHAT CHANGED
 and beside the counts, and the comparison chain restarts from that
-edition. When a headline series (a score, an error share, an alert
+edition. The same rule governs any leg source whose ruler changes —
+a checker that revises its scoring, a platform that re-bases its
+scale: the first edition on the new ruler prints its figures with a
+"the ruler changed, not the site" note, comparisons against the old
+ruler are not drawn, and that leg's comparison chain restarts from
+that edition. When a headline series (a score, an error share, an alert
 count, or a traffic total such as requests, uniques, or page views)
 has moved in the same direction in at least 3 successive
 edition-to-edition comparisons, WHAT CHANGED names the trend and

@@ -1,6 +1,6 @@
 ---
 name: site-health-security-report
-description: Produce a graded daily (or weekly) health and security report for a website — traffic and errors from the site's own edge analytics, SEO/AEO checker scores, and code-host scanning (dependencies, SAST, secrets) — with evidence behind every figure, a pre-send verification gate, and owner-approved sending. Use when asked to run, set up, or continue a site's health/security report on any stack (Cloudflare, AWS CloudFront, Azure, Fastly, Akamai; GitHub, GitLab, Bitbucket, Azure DevOps, Gitea). Always start with the stack intake in references/stack-intake.md; never assume a vendor.
+description: Produce a graded daily (or weekly, or monthly) health and security report for a website — traffic and errors from the site's own edge analytics, SEO/AEO checker scores, and code-host scanning (dependencies, SAST, secrets) — with evidence behind every figure, a pre-send verification gate, and owner-approved sending. Use when asked to run, set up, or continue a site's health/security report on any stack (Cloudflare, AWS CloudFront, Azure, Fastly, Akamai; GitHub, GitLab, Bitbucket, Azure DevOps, Gitea). Always start with the stack intake in references/stack-intake.md; never assume a vendor.
 ---
 <!--
 SPDX-License-Identifier: MIT
@@ -8,7 +8,7 @@ SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 -->
 # Site Health & Security Report
 
-An agent skill that produces a graded daily (or weekly) health and security
+An agent skill that produces a graded daily (or weekly, or monthly) health and security
 report for a website, in plain language, for busy owners. It is the method
 designed by ElectroHire and generalized to any stack, so the
 originating company's projects are not part of the method.
