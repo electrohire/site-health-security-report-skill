@@ -33,8 +33,9 @@ are not measurements.
 | `outage_confirmed` | boolean | True only when the burst rule classifies the day as a primary-host outage and the primary host was actually down |
 | `classification_pending` | boolean, optional | True when an error spike's segmentation was unavailable at send time: no burst record, the traffic leg is not graded, and the overall is incomplete until the classification lands |
 | `outage_note` | string, optional | The recorded cause of a confirmed outage when it is not an origin failure (host suspension, provider action, billing): carried into the edition's cause line. An administratively caused outage does not count toward `repeated_reliability_problems` |
+| `side_host_outage` | object `{host, note}`, optional | A side host confirmed down for part of the period (from the operator's records, not the burst classifier: a probe and an outage segment identically). Traffic caps at D with the host named. A side-host outage day counts toward `repeated_reliability_problems` like an outage day |
 | `burst` | object, required when a burst was segmented | The segmentation record (`total_errors`, `top_single_ip_errors`, `primary_host_errors`, `top_single_host_errors`). The grader classifies it and requires the classification to agree with `outage_confirmed`; an outage claim without the record is an input error |
-| `repeated_reliability_problems` | boolean, optional | True when the residual (post-segmentation) 5xx share was above the B band (over 0.5%) in at least 2 of the last 7 editions including the current one (or of all editions so far, when fewer than 7 exist) (the run records are the evidence; an outage day counts, a reclassified burst does not, and an administratively caused outage — host suspension, billing — does not) |
+| `repeated_reliability_problems` | boolean, optional | True when the residual (post-segmentation) 5xx share was above the B band (over 0.5%) in at least 2 of the last 7 editions including the current one (or of all editions so far, when fewer than 7 exist) (the run records are the evidence; an outage day counts, a confirmed side-host outage day counts, a reclassified burst does not, and an administratively caused outage — host suspension, billing — does not) |
 
 ## seo_aeo
 
@@ -49,7 +50,15 @@ Scanner severity mapping (when any scanner's severities must be
 folded into the counts — a fallback scanner's vocabulary, or a native
 scanner reporting levels beyond the four, such as GitLab's Info and
 Unknown): scanner "critical"/blocker findings count as
-`critical` only when they are exploitable in production as shipped;
+`critical` only when they are exploitable in production as shipped.
+The same rule governs platform advisories (leg 3's platform counts):
+a vendor "critical" for a feature the deployment does not run is
+recorded as high, and the evidence record states who judged
+exploitability and on what basis (the feature is disabled, the code
+path is unreachable, the affected version is not the deployed one).
+Where the advisory source is the deployment's own publisher, the
+record also names a corroborating source or states that none
+exists; the downgrade is never silent either way;
 otherwise map error/blocker to `high`, warning to `medium`, info/note
 to `low`. OSV-Scanner records carry database severity instead of a
 word: when a CVSS score is present, map by score (9.0 and above

@@ -12,7 +12,7 @@ This is a daily health and security report method designed by
 ElectroHire, generalized to any stack, published as an open agent
 skill.
 
-**Status: pre-release, version 0.28.0.** The skill is public for review
+**Status: pre-release, version 0.29.0.** The skill is public for review
 and is being iterated against red teams and simulated stacks until a
 complete verification round finds no issues. The first release will be
 v1.0.0; versioning is semantic from that release, with a changelog

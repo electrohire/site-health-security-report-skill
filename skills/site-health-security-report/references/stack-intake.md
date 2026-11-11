@@ -31,13 +31,14 @@ report written without it has produced a real error somewhere.
 | Application platform (`app_platform`, optional) | A platform whose components update separately from the code (WordPress, a CMS): which platform, and the advisory source leg 3 reads. |
 | Site backups (`site_backups`, optional) | How the site itself is backed up and when a backup was last verified; feeds findings' `site_backups_verified`. |
 | Log stream (`log_stream`, optional) | Where the edge's logs stream to (destination, format, credential location): the segmentation source when the edge's own analytics cannot cut by host and address. |
-| SEO/AEO checkers (`seo_checkers`, optional) | Which checkers produce the leg-4 scores and scan ids, so the choice is recorded once, not re-decided per edition. |
+| SEO/AEO checkers (`seo_checkers`, optional) | Which checkers produce the leg-2 scores and scan ids, so the choice is recorded once, not re-decided per edition. |
 | Brand (white-label) | Display name, logo URL, accent color, sender display name for the HTML template. |
 
 ## Intake questions (ask verbatim, one short list)
 
 1. What is the site's main web address, and what other hosts belong to it
-   (API, staging, app, admin)?
+   (API, staging, app, admin)? Every host named here, the staging
+   host included, is recorded in `side_hosts` with its role.
 2. What sits in front of it, if anything: Cloudflare, AWS CloudFront,
    Azure, Fastly, something else, or nothing?
 3. Where does the code live: GitHub, GitLab, Bitbucket, Azure DevOps,

@@ -117,21 +117,15 @@ def _norm_dmarc(value):
         return None
     if s in ("reject", "quarantine", "none", "missing"):
         return s
-    if ";" in s or s.startswith("v=dmarc"):
+    if ";" in s or "," in s or "=" in s or s.startswith("v=dmarc"):
         policies = set()
-        for part in s.split(";"):
+        for part in re.split(r"[;,]", s):
             m = re.match(r"p\s*=\s*(reject|quarantine|none)\b", part.strip())
             if m:
                 policies.add(m.group(1))
         if len(policies) == 1:
             return policies.pop()
         return s  # no p= tag, or conflicting duplicates: not a valid record
-    if "p=reject" in s:
-        return "reject"
-    if "p=quarantine" in s:
-        return "quarantine"
-    if "p=none" in s:
-        return "none"
     return s
 
 
@@ -539,6 +533,22 @@ def grade_traffic(f):
         grade = "B"
         causes.append(f"minor error noise above the clean band "
                       f"(server errors {share:.1%}, 'not found' {share404:.1%} of traffic)")
+    side_outage = f.get("side_host_outage")
+    if side_outage is not None:
+        if not isinstance(side_outage, dict) \
+                or not isinstance(side_outage.get("host"), str) \
+                or not side_outage.get("host", "").strip():
+            raise InputError("traffic.side_host_outage must be an object "
+                             "with a non-empty 'host' (and an optional "
+                             "'note') when present")
+        if side_outage.get("note") is not None \
+                and not isinstance(side_outage["note"], str):
+            raise InputError("traffic.side_host_outage.note must be a string")
+        grade = _cap(grade, "D")
+        causes.append(f"a side host was confirmed down for part of the "
+                      f"period: {side_outage['host']}"
+                      + (f" ({side_outage['note']})"
+                         if side_outage.get("note") else ""))
     return grade, causes
 
 
@@ -736,6 +746,12 @@ def _validate_config(cfg):
         elif brand.get("display_name") is not None \
                 and not isinstance(brand["display_name"], str):
             errors.append("brand.display_name must be a string")
+        if isinstance(brand, dict):
+            for sub in ("accent_color", "logo_url"):
+                if brand.get(sub) is not None \
+                        and not isinstance(brand[sub], str):
+                    errors.append(f"brand.{sub} must be a string (it "
+                                  f"renders into the HTML report part)")
     if isinstance(hosts, list):
         for h in hosts:
             if isinstance(h, dict) and h.get("role") is not None \
@@ -858,9 +874,9 @@ REQUIRED_SECTIONS = ["traffic", "seo", "security &", "website security scans",
 # shape; prose mentions elsewhere in the document do not satisfy it.
 # EVERY such line is checked: a second, contradictory line is a defect.
 SUBGRADES_LINE = re.compile(
-    r"sub-?grades\s*[:—–-]?\s*[^\n]*?traffic\s*(?:&|and)\s*reliability\s*:?\s+([A-Fa-f]|not available)\b"
-    r"[^\n]*?seo\s*(?:/|&|and|-)\s*aeo\s*:?\s+([A-Fa-f]|not available)\b"
-    r"[^\n]*?security\s*(?:&|and)\s*code health\s*:?\s+([A-Fa-f]|not available)\b")
+    r"sub-?grades\s*[:—–-]?\s*[^\n]*?traffic\s*(?:&|and)\s*reliability\s*[:—–-]?\s+([A-Fa-f]|not available)\b"
+    r"[^\n]*?seo\s*(?:/|&|and|-)\s*aeo\s*[:—–-]?\s+([A-Fa-f]|not available)\b"
+    r"[^\n]*?security\s*(?:&|and)\s*code health\s*[:—–-]?\s+([A-Fa-f]|not available)\b")
 # The template's per-section grade lines are headings ("## TRAFFIC & X --
 # grade A", "## SEO / AEO -- grade B", "## SECURITY & CODE HEALTH --
 # grade C"). Patterns are anchored to line starts so ordinary prose
@@ -881,17 +897,17 @@ SECTION_GRADE_PATTERNS_END = [
     ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?security\s*(?:&|and|-|:|\s|—|–)[^\n]*?grade\s*:?\s+([A-Fa-f])\b")),
 ]
 SECTION_GRADE_PATTERNS_BARE = [
-    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?traffic\s*(?:&|and|-|:|\s|—|–)[^\n]*?[—–:·-]\s*([A-Fa-f])\s*(?:</h[1-6]>)?\s*$")),
+    ("traffic", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?traffic\s*(?:&|and|-|:|\s|—|–)[^\n]*?[—–:·-]?\s*([A-Fa-f])\s*(?:</h[1-6]>)?\s*$")),
     ("seo_aeo", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?seo(?:\s*(?:/|&|and|-)\s*aeo)?[^\n]*?[—–:·-]\s*([A-Fa-f])\s*(?:</h[1-6]>)?\s*$")),
-    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?security\s*(?:&|and|-|:|\s|—|–)[^\n]*?[—–:·-]\s*([A-Fa-f])\s*(?:</h[1-6]>)?\s*$")),
+    ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?security\s*(?:&|and|-|:|\s|—|–)[^\n]*?[—–:·-]?\s*([A-Fa-f])\s*(?:</h[1-6]>)?\s*$")),
 ]
 OVERALL_PATTERN = re.compile(
-    r"overall grade\s*(?::|=|—|–|-)?\s*(?:is\s+)?(?:<[^>]+>\s*)?([A-Fa-f])\b")
+    r"overall grade\s*(?::|=|—|–|-)?\s*(?:is\s+)?(?:an?\s+)?(?:<[^>]+>\s*)?([A-Fa-f])\b")
 CORRECTED_OVERALL_PATTERN = re.compile(r"corrected overall grade is\s+([A-Fa-f])\b")
 CORRECTED_GRADES_LINE = re.compile(
-    r"corrected grades:[^\n]*?traffic\s*(?:&|and)\s*reliability\s+([A-Fa-f]|not available)\b"
-    r"[^\n]*?seo\s*(?:/|&|and|-)\s*aeo\s+([A-Fa-f]|not available)\b"
-    r"[^\n]*?security\s*(?:&|and)\s*code health\s+([A-Fa-f]|not available)\b")
+    r"corrected grades\s*[:—–-]?\s*[^\n]*?traffic\s*(?:&|and)\s*reliability\s*[:—–-]?\s+([A-Fa-f]|not available)\b"
+    r"[^\n]*?seo\s*(?:/|&|and|-)\s*aeo\s*[:—–-]?\s+([A-Fa-f]|not available)\b"
+    r"[^\n]*?security\s*(?:&|and)\s*code health\s*[:—–-]?\s+([A-Fa-f]|not available)\b")
 
 
 def _dedupe(items):
@@ -906,6 +922,11 @@ def _dedupe(items):
 def validate_report(text, findings=None, kind="edition"):
     problems = []
     low = text.lower()
+    # Emphasis and markup around a grade letter are presentation, not
+    # a different statement: normalize them away before pattern
+    # matching ('grade: **F**', '<b>F</b>', '<span><b>F</b></span>').
+    low = re.sub(r"</?[a-z][^>]*>", " ", low)
+    low = re.sub(r"(\*\*|__|\*|_)([a-f])\1", r"\2", low)
     if kind == "correction":
         for section in ("correction", "what was wrong", "what is correct"):
             if section not in low:
@@ -1039,6 +1060,12 @@ def validate_run(cfg, findings, report_text, kind="edition"):
     problems.extend(validate_report(report_text, findings, kind=kind))
     sec = findings.get("security", {})
     scanning = cfg.get("scanning") or {}
+    app_platform = cfg.get("app_platform")
+    if sec.get("platform") is not None and (
+            app_platform is None or _scan_value(app_platform) == "none"):
+        problems.append("config/findings contradiction: findings report "
+                        "platform vulnerabilities but the config's "
+                        "app_platform is 'none' or unrecorded")
     if _scan_value(scanning.get("sast", "")) == "none" and sec.get("code_scanning_on"):
         problems.append("config/findings contradiction: scanning.sast is 'none' but "
                         "findings claim code_scanning_on is true")
@@ -1359,6 +1386,8 @@ def _addressish(line):
             return False  # prose lead-in ('Copies To ...'), not an address list
     if not tokens:
         return False
+    if re.search(r"<[^>]*@[^>]*>", line):
+        return True  # an angle-bracketed address, whatever the name's case
     for tok in tokens:
         core = tok.strip(",;·|")
         if "@" in core or core in ("and", "&"):
@@ -1537,6 +1566,9 @@ def main(argv):
             return 1 if errors else 0
         if cmd == "validate-report" and len(argv) in (3, 4, 5, 6):
             kind, args = _split_kind(argv[2:])
+            if len(args) > 2:
+                print(__doc__)
+                return 1
             try:
                 text = open(args[0], encoding="utf-8-sig").read()
             except FileNotFoundError:

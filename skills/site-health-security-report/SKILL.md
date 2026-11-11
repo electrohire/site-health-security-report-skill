@@ -85,7 +85,9 @@ silently.
    security headers (an enforcing Content-Security-Policy counts; a
    report-only one does not), HTTP-to-HTTPS redirect, and email
    authentication (SPF, DMARC policy, MX — read from the domain's
-   DNS TXT/MX records with any DNS lookup tool). DDoS posture for the site and
+   DNS TXT/MX records with any DNS lookup tool). These checks grade
+   the primary host; a side host's headers and TLS are reported in
+   the narrative, not graded. DDoS posture for the site and
    the API is covered in `references/ddos.md`.
 6. **Privacy & AI compliance spot checks (publicly checkable only).**
    Privacy policy names the correct legal entity as controller, covers
@@ -189,7 +191,8 @@ Full discipline: `references/verification.md` and
    log), never from a sent-items folder the route does not use.
 5. Corrections are sends too: same gate, same validation, same recipients
    copied from the config, never re-typed.
-6. An F grade, a confirmed outage, a confirmed compromise of the
+6. An F grade, a confirmed outage (a confirmed side-host outage
+   counts), a confirmed compromise of the
    site, or a critical vulnerability under
    active exploitation in the product (a platform component counts)
    does not wait for the schedule:

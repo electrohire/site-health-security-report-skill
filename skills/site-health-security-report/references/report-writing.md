@@ -66,7 +66,10 @@ later edition's recommendation is reported done in that edition's
 follow-up block with a cross-reference to the procedure that
 completed it. The block sits after the new
 recommendations in the template layout; within the block, last
-edition's items come first and nothing new is added there.
+edition's items come first and nothing new is added there. An
+item reported "no movement" is re-issued in the new
+recommendations until it is done or withdrawn, so a stalled item
+never silently drops out of the chain.
 
 A straddling edition (a stack amendment mid-period) composes its
 traffic figures from both sources: additive counts (requests,
