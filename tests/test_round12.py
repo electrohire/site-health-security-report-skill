@@ -62,9 +62,9 @@ class TestRound12(unittest.TestCase):
         f2["traffic"]["four_04_share"] = 0.02
         self.assertEqual(sh.compute_grades(f2)["traffic"], "B")
 
-    def test_readme_counts_eleven_questions(self):
+    def test_readme_counts_twelve_questions(self):
         readme = open(os.path.join(ROOT, "README.md")).read()
-        self.assertIn("eleven questions", readme)
+        self.assertIn("twelve questions", readme)
 
 
 if __name__ == "__main__":

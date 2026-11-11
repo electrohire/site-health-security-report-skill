@@ -356,6 +356,28 @@ def grade_security(f):
         causes.append("a critical alert with a public exploit affects production")
     critical = f.get("critical")
     high = f.get("high")
+    platform = f.get("platform")
+    if platform is not None:
+        if not isinstance(platform, dict):
+            raise InputError("security.platform must be an object with "
+                             "source, critical, high")
+        for key in ("critical", "high"):
+            value = platform.get(key)
+            if not isinstance(value, int) or isinstance(value, bool) \
+                    or value < 0:
+                raise InputError(f"security.platform.{key} must be a "
+                                 f"non-negative integer, got {value!r}")
+        if not platform.get("source"):
+            raise InputError("security.platform.source must name the "
+                             "platform advisory source")
+        if platform["critical"] > 0:
+            grade = _cap(grade, "D")
+            causes.append(f"{platform['critical']} critical platform "
+                          f"vulnerabilit(ies) open ({platform['source']})")
+        if platform["high"] > 0:
+            grade = _cap(grade, "C")
+            causes.append(f"{platform['high']} high platform "
+                          f"vulnerabilit(ies) open ({platform['source']})")
     if critical is not None and critical > 0:
         grade = _cap(grade, "D")
         causes.append(f"{critical} critical dependency/code alert(s) open")
@@ -387,6 +409,10 @@ def grade_security(f):
     ci_blocked = f.get("ci_blocked", False)
     if not isinstance(ci_blocked, bool):
         raise InputError(f"security.ci_blocked must be a JSON boolean, got {ci_blocked!r}")
+    backups = f.get("site_backups_verified")
+    if backups is not None and not isinstance(backups, bool):
+        raise InputError("security.site_backups_verified must be a JSON "
+                         f"boolean, got {backups!r}")
     obs = _norm(f.get("observatory_grade"), upper=True)
     sslg = _norm(f.get("ssl_grade"), upper=True)
     named_caps = [
@@ -405,6 +431,7 @@ def grade_security(f):
         (_norm_dmarc(f.get("dmarc")) in ("none", "missing"), f"DMARC policy is {_norm_dmarc(f.get('dmarc'))}"),
         (privacy_failures > 0, f"{privacy_failures} privacy/AI spot check(s) failing"),
         (ci_blocked, "CI/CD cannot run, so the security pipeline cannot run either"),
+        (backups is False, "no verified backup of the site itself"),
     ]
     for hit, text in named_caps:
         if hit:

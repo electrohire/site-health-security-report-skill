@@ -56,8 +56,22 @@ report written without it has produced a real error somewhere.
     and at what time should it arrive? (At weekly cadence, also record
     the covering convention, e.g. Monday to Sunday.)
 11. What display name and accent color should the report carry?
+12. Does the site run on an application platform whose own components
+    update separately from the code (WordPress core and plugins, a
+    CMS, a shop platform)? If so, which, and who announces its
+    vulnerabilities? And how is the site itself backed up, and when
+    was a backup last verified?
 
-Record "unknown" honestly where the user does not know; the first edition
+Record "unknown" honestly where the user does not know. An answer
+that is publicly checkable (DNS, response headers, the platform's
+public version files) may be verified from public evidence instead
+of asking, and the record says which. Where the customer has no
+sending service yet, setting one up on their own domain is part of
+adoption (allow about an hour, guided). A signed-in browser or
+dashboard session is an acceptable credential location for the edge
+as it is for the code host, recorded the same way. The config is
+confirmed back to the owner in plain language, not as raw JSON; the
+first edition
 then treats closing that unknown as a recommendation. Note that the
 config validator requires the table's fields to be present (the optional
 extras are `code_host_instance`, `edge_tier`, `code_host_addons`, and

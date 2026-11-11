@@ -23,6 +23,24 @@ period's commit/CI/deploy activity. Where each host gets them:
 - If scanning is dark because of licensing, the finding names the exact
   unlock (plan or GHAS) and its cost; the fallback stack below is the
   interim answer.
+- Language coverage: CodeQL does not analyze PHP (and several other
+  languages); on a repo whose main language it does not cover,
+  `code_scanning_on` means the tool is enabled, not that the code is
+  analyzed — the edition narrates the coverage limit and the fallback
+  (Semgrep covers PHP) is the honest SAST source.
+
+## Application platforms (WordPress and similar)
+
+Where the product runs on a platform whose components live outside
+the repositories (WordPress core, plugins and themes installed from
+the platform's directory; a CMS's modules), leg 3 also reads the
+platform: installed versions from the platform's own surface (the
+admin update screen, or the public version file a plugin ships),
+matched against the named advisory source (the vendor's notices,
+the host's security mail, a vulnerability database). Open criticals
+and highs are recorded in findings as `security.platform` with the
+source named, and an exploited platform critical authorizes the
+incident note like any other.
 
 ## GitLab
 

@@ -16,6 +16,12 @@ under this gate and the procedure below. That is deliberate, not an
 omission: a merge is not a report artifact, and no validator in this
 skill can see one.
 
+On shared or managed hosting without branches, the equivalent is
+the host's own staging copy (most WordPress hosts offer a one-click
+staging clone): changes are made and approved on the copy, then
+pushed to production by the host's tool. Record whichever shape the
+deployment actually has; "none" stays a finding, not a blocker.
+
 ## The shape
 
 - Two long-lived branches: `staging` and `main` (production).

@@ -68,9 +68,13 @@ silently.
    and timestamp from this run.
 3. **Code host security.** Open dependency alerts by severity, code
    scanning alerts by severity, secret scanning alerts, and the last
-   period's commit and CI/deploy activity. Per code host, including what
-   to do when the host has no native scanning, see
-   `references/adapters-codehost.md` and
+   period's commit and CI/deploy activity. Where the site runs on an
+   application platform (WordPress core and plugins, a CMS), its
+   installed components' known vulnerabilities from the named
+   platform source are counted here too (findings `security.platform`):
+   on such a stack the platform is where the exploitable code lives.
+   Per code host, including what to do when the host has no native
+   scanning, see `references/adapters-codehost.md` and
    `references/scanning-fallbacks.md`.
 4. **Standing critical items.** Any named, dated item the owner has flagged
    as tracked-until-closed (a CVE in production, a certificate expiring, a
@@ -167,7 +171,9 @@ Full discipline: `references/verification.md` and
    log), never from a sent-items folder the route does not use.
 5. Corrections are sends too: same gate, same validation, same recipients
    copied from the config, never re-typed.
-6. An F grade or a confirmed outage does not wait for the schedule:
+6. An F grade, a confirmed outage, or a critical vulnerability under
+   active exploitation in the product (a platform component counts)
+   does not wait for the schedule:
    the owner is told the same day through the config's route (an
    incident note, not an edition), and the next edition reports it in
    the ordinary way.

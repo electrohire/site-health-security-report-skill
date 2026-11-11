@@ -15,8 +15,10 @@ change to recipients, sending route, or schedule before it takes
 effect. The signed-off config is the standing authorization for
 scheduled editions under it; nothing outside it (a new recipient, a new
 route, a one-off extra send) is authorized, with one exception stated
-here: the incident note. When an edition's findings confirm an outage
-or an F grade, a short incident note to the config's recipients,
+here: the incident note. When an edition's findings confirm an outage,
+an F grade, or a critical vulnerability under active exploitation in
+the product (a platform component counts), a short incident note to
+the config's recipients,
 through the config's sending route, is authorized by the same
 sign-off. It carries the idempotency key `incident-<date>` and a
 send-log line like any send; it is a note, not an edition, so it needs

@@ -63,6 +63,8 @@ the cause named, rather than inventing a zero.
 | Field | Type | Meaning |
 |---|---|---|
 | `critical` | int ≥ 0 or null, required | Open critical dependency/code alerts across product repos; null only when no scanner ran and the count is not measured (run grades incomplete) |
+| `platform` | object, optional | Application-platform vulnerabilities (intake Q12: WordPress core/plugins, a CMS) from a named source: `{source, critical, high}`. Counted into the Security grade like repo alerts; an exploited platform critical also sets `critical_public_exploit_in_production` |
+| `site_backups_verified` | boolean, optional | Whether a backup of the site itself is verified to exist; `false` is a named Security cause capped at C |
 | `high` | int ≥ 0 or null, required | Open high-severity alerts; null under the same rule as `critical` |
 | `medium`, `low` | int ≥ 0 | Backlog counts; reported, but they do not lower the grade by themselves |
 | `code_scanning_on` | boolean, required | True only if code scanning actually ran on every product repo |

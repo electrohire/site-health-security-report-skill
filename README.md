@@ -12,7 +12,7 @@ This is a daily health and security report method designed by
 ElectroHire, generalized to any stack, published as an open agent
 skill.
 
-**Status: pre-release, version 0.16.0.** The skill is public for review
+**Status: pre-release, version 0.17.0.** The skill is public for review
 and is being iterated against red teams and simulated stacks until a
 complete verification round finds no issues. The first release will be
 v1.0.0; versioning is semantic from that release, with a changelog
@@ -69,7 +69,7 @@ the skill itself.
 1. Copy `skills/site-health-security-report/` into your agent's skills
    directory (per-agent paths: [docs/agent-integrations](docs/agent-integrations/)).
 2. Ask your agent: *"Run the stack intake for the site health report."*
-   Answer the eleven questions.
+   Answer the twelve questions.
 3. The agent saves your config from
    `skills/site-health-security-report/templates/config.example.json`.
 4. Ask for the first edition, review it, then schedule it (the skill
