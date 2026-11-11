@@ -152,7 +152,13 @@ source, and never share one store across customers (each config
 names recipients and credential locations — a shared store is a
 cross-customer exposure). Idempotency keys are per deployment
 because the send logs are; every path in the commands below is
-inside the deployment's folder.
+inside the deployment's folder. One deployment's records are
+never disclosed to another deployment's owner or recipients, in
+any form, including verbally or "for comparison": decline the
+request, log it in the requesting deployment's records without
+naming the other deployment, and offer only what the requesting
+deployment's own records support. Disclosure requires the other
+owner's recorded consent, given for that disclosure.
 
 ## Write, verify, validate, then send
 

@@ -79,7 +79,8 @@ never the as-sent ones. The
 Requests figure (the covering period's total) compares against the
 previous covering period's total, and the baseline average is the
 mean of the daily request totals over the previous seven covering
-days, rounded to the nearest whole request — for a daily deployment
+days, rounded to the nearest whole request (the same rounding
+applies to a weekly edition's per-day figures) — for a daily deployment
 that is the previous seven editions; for a weekly deployment it is
 the previous edition's covering week, and the line prints it as a
 per-day figure beside the week's own daily average, never as a

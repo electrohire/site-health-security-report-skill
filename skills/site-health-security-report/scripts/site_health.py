@@ -27,6 +27,7 @@ and sender match the config.
 Exit code 0 means "ran and passed"; 1 means problems were printed.
 All error paths print a clean ERROR line, never a traceback.
 """
+import http.client
 import json
 import re
 import ssl
@@ -210,7 +211,8 @@ def fetch_headers(url):
             return dict(resp.headers.items())
     except urllib.error.HTTPError as e:
         return dict(e.headers.items())
-    except (urllib.error.URLError, ssl.SSLError, OSError, ValueError) as e:
+    except (urllib.error.URLError, ssl.SSLError, OSError, ValueError,
+            http.client.HTTPException) as e:
         raise InputError(f"could not fetch headers from {url}: {e}")
 
 
@@ -1373,6 +1375,9 @@ def _load_json(path):
         raise InputError(f"file not found: {path}")
     except (OSError, UnicodeDecodeError) as e:
         raise InputError(f"cannot read {path}: {e}")
+    except RecursionError:
+        raise InputError(f"invalid JSON in {path}: nested too deeply "
+                         f"to be a config or findings file")
     except json.JSONDecodeError as e:
         raise InputError(f"invalid JSON in {path}: {e}")
     if not isinstance(data, dict):
@@ -1388,7 +1393,12 @@ def _split_kind(args):
     rest = []
     i = 0
     while i < len(args):
-        if args[i] == "--kind" and i + 1 < len(args):
+        if args[i] == "--kind":
+            if i + 1 >= len(args):
+                raise InputError("--kind needs a value: edition or correction")
+            if args[i + 1] not in ("edition", "correction"):
+                raise InputError(f"unknown --kind {args[i + 1]!r}: "
+                                 f"edition or correction")
             kind = args[i + 1]
             i += 2
         else:

@@ -100,7 +100,8 @@ with evidence pointers). The sender runs only on a full pass.
 ## Send discipline
 
 - Exactly once: an idempotency key per edition (`report-<date>`,
-  `correction-<date>`), checked against the send log before sending,
+  `correction-<date>`; the date is the covering period's end date —
+  for a weekly edition, its last covering day), checked against the send log before sending,
   matched on the key, never on the subject line (subjects embed the
   grade and can change between runs). The incident note follows the
   same discipline with the key `incident-<date>`: check the log for
@@ -128,7 +129,8 @@ lost too.
 The config is the standing send authorization and the evidence store
 is the method's memory; both are single local files unless the
 operator keeps copies elsewhere. Keep a copy of the config (the live
-file and its versioned history) and of the send log on a second
+file and its versioned history) and of the send log — per
+deployment, never combined into one archive across customers — on a second
 machine or in the code-host account. The copies carry credential
 locations, never values, and are stored with the same care as the
 originals.
