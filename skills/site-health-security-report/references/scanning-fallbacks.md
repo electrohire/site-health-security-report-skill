@@ -16,7 +16,7 @@ report's leg 3 reads the latest artifacts.
 | Secrets | gitleaks | trufflehog (verified-secret mode) | Run on the full history at setup, then per-commit in CI. Push-time prevention: a pre-receive hook or the host's push rules where available. |
 | SAST / code flaws | Semgrep (OSS rules) | SonarQube Community; CodeQL CLI **only where licensed**: using it on closed-source code outside GitHub generally requires GitHub Advanced Security, so it is not the free fallback for a Bitbucket/Azure DevOps customer | Semgrep's free rules catch the common classes; its paid rulesets deepen coverage. |
 | Dependencies | OSV-Scanner | Trivy, `npm audit`, `pip-audit`, `cargo audit` | OSV-Scanner reads lockfiles across ecosystems and queries the OSV database; Trivy adds container images and IaC. |
-| Containers / IaC | Trivy | Grype, Checkov (IaC) | Only where images or IaC exist. |
+| Containers / IaC | Trivy | Grype, Checkov (IaC) | Only where images or IaC exist. Recorded in the config as: Grype under `dependencies` (it detects vulnerabilities in images and filesystems), Checkov under `sast` (it statically analyzes the IaC); Trivy serves either kind, recorded under the kind it was run for. GitLab is covered by this table too: where the instance's tier does not run the GitLab scanners, run these in GitLab CI and record the fallback names. |
 | Dependency update PRs | Renovate | Dependabot (GitHub only) | Detection without updates rots; pair them. |
 
 ## Pipeline shape (host-neutral)

@@ -12,14 +12,14 @@ report written without it has produced a real error somewhere.
 |---|---|
 | Primary hostname (e.g. `example.com`) | The outage definition applies to this host. |
 | Side hostnames with roles (API, staging, app/workspace, admin) | Error bursts on side hosts are graded as events on that host, never as primary-site outages. |
-| Edge / CDN / DDoS provider | Decides which analytics API and which DDoS controls the report checks (Cloudflare, CloudFront + WAF/Shield, Azure Front Door + WAF, Fastly, Akamai, none). |
+| Edge / CDN / DDoS provider | Decides which analytics API and which DDoS controls the report checks (Cloudflare, CloudFront + WAF/Shield, Azure Front Door + WAF, Fastly, Akamai, Sucuri, Netlify, Vercel, Bunny, other — named in the notes — or none). |
 | Edge analytics credential | Must be read-only and scoped to the one site/zone. Never a global key. Record **where it lives** (vault entry name), never its value; the saved config must be safe to commit in redacted form and is named `config.local.json` (git-ignored). |
 | Code-host access | Read-only in the same way: a scoped read token where the host supports one. Where the agent instead uses the user's existing signed-in CLI session, record that fact here; that session is never used to write. |
 | Sender identity | The From display name and address on the customer's own sending domain (the report template's sender comes from this field, not from prose). |
-| Code host instance | Recorded for any host where it changes what applies (GitLab, Azure DevOps, Gitea, other): `saas` or `self-managed`. The validator warns when it is missing on those hosts. |
+| Code host instance | Recorded for any host where it changes what applies (GitHub vs Enterprise Server, Bitbucket Cloud vs Data Center, GitLab, Azure DevOps, Gitea, other): `saas` or `self-managed`. The validator warns when it is missing on those hosts. The CI system is recorded alongside it in `code_host_ci` (for example `github-actions`, `gitlab-ci`, `bitbucket-pipelines`, `azure-pipelines`, `gitea-actions`, `woodpecker`). |
 | Edge tier / plan | Optional but recommended: the edge plan (free, Pro, Premium, Shield Advanced, and so on). The adapters' DDoS and WAF claims are tier-dependent, and the findings' `edge_posture` rests on it. |
 | Code host add-ons | Optional: licensed add-ons that change the scanning vocabulary, today `ghazdo` for Azure DevOps. |
-| Code host and organization | Decides the scanning source (GitHub, GitLab, Bitbucket, Azure DevOps, Gitea). |
+| Code host and organization | Decides the scanning source (GitHub, GitLab, Bitbucket, Azure DevOps, Gitea, Codeberg, or other — named in the notes). |
 | Repository list (the product set) | The report covers a named set, not "everything in the org". |
 | Scanning stack actually in place | Native (Dependabot/CodeQL, GitLab SAST, ...) or pipeline fallbacks (Semgrep, gitleaks, Trivy, OSV-Scanner, Snyk). Record which, per scan type: dependencies, SAST, secrets. |
 | Hosting / origin | Decides TLS and origin-protection checks, and where staging lives. |
@@ -40,9 +40,10 @@ report written without it has produced a real error somewhere.
    (API, staging, app, admin)? Every host named here, the staging
    host included, is recorded in `side_hosts` with its role.
 2. What sits in front of it, if anything: Cloudflare, AWS CloudFront,
-   Azure, Fastly, something else, or nothing?
+   Azure, Fastly, Akamai, Sucuri, Netlify, Vercel, Bunny, something
+   else, or nothing?
 3. Where does the code live: GitHub, GitLab, Bitbucket, Azure DevOps,
-   somewhere else? Which repositories are the product?
+   Gitea, Codeberg, somewhere else? Which repositories are the product?
 4. What scans the code today for vulnerable dependencies, code flaws, and
    leaked secrets, if anything does?
 5. Where is it hosted, and is there a staging site? How do changes reach

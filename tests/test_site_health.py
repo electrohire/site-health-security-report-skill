@@ -232,7 +232,10 @@ class TestRepoHygiene(unittest.TestCase):
         t = self.ROOT / "skills" / "site-health-security-report" / "templates"
         for name in ("report-template.md", "report-email.html",
                      "correction-template.md", "evidence-ledger.example.md",
-                     "config.example.json", "config.example.yaml"):
+                     "config.example.json", "config.example.yaml",
+                     "bitbucket-pipelines.example.yml",
+                     "azure-pipelines.example.yml",
+                     "gitea-actions.example.yml"):
             self.assertTrue((t / name).exists(), name)
 
     def test_skill_md_states_the_hard_rules(self):

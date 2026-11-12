@@ -98,7 +98,11 @@ the primary records in a separate pass and label the validation record
    records, never from its prose.
 4. Render the email (dry run) and confirm the HTML and the plain-text
    part carry the same headline figures and grades; renderers that
-   parse sections can silently drop content from one part.
+   parse sections can silently drop content from one part. The HTML
+   part is also mechanically validated against the findings
+   (`validate-email report.html findings.json`): a text part that
+   passes while the HTML part states a different grade is a failed
+   validation, not a rendering detail.
 5. Confirm all six legs are present, and every "not available" carries
    its reason.
 6. Confirm the send log holds no entry for this edition's idempotency

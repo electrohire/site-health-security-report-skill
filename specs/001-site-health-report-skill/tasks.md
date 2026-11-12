@@ -43,3 +43,9 @@ SPDX-FileCopyrightText: 2026 ElectroHire Inc.
       permission, with a Keep a Changelog changelog started at that
       release and semantic versioning from then on. (Owner approved
       2026-11-11; released as v1.0.0.)
+- [x] T21: Round 39 (post-release red team, 2026-11-12): fix every
+      proven finding; add Netlify/Vercel/Bunny edges; land the
+      per-stack simulation suite with full CLI line coverage.
+      (Landed unreleased 2026-11-12: 354 tests, 100% line coverage
+      of site_health.py; the next release is stamped only on the
+      owner's explicit permission, per T20's rule.)

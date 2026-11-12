@@ -27,8 +27,12 @@ encoded as mechanical rules and tests.
   items, public security scans, privacy/AI spot checks); a leg that
   cannot run is reported as not available with its reason.
 - FR-3: Adapters for Cloudflare, CloudFront+WAF/Shield, Azure Front
-  Door, Fastly, and no-edge log analysis; for GitHub, GitLab, Bitbucket,
-  Azure DevOps, and Gitea.
+  Door, Fastly, Akamai, Sucuri, Netlify, Vercel, Bunny, a generic
+  'other' edge (named in the config notes), and no-edge log analysis;
+  for GitHub, GitLab, Bitbucket, Azure DevOps, Gitea, Codeberg, and a
+  generic 'other' code host. Every adapter value the validator
+  accepts is exercised end-to-end by a simulated deployment in the
+  test suite (tests/test_stack_sims.py).
 - FR-4: Where a host lacks native scanning (Bitbucket), the skill
   specifies a pipeline fallback stack and grades its coverage honestly.
 - FR-5: A to F grading, overall and three sub-grades, computed

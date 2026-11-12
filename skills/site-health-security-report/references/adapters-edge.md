@@ -89,7 +89,7 @@ to get them, and what DDoS controls to check, per provider.
   the burst rule needs come from log streaming to your own store
   (S3, BigQuery, or a log platform), with a log format that includes
   the host, client IP, status, and request path, for example:
-  `{"host":"%{req.http.Host}V","ip":"%a","status":%s,"path":"%U"}`.
+  `{"host":"%{req.http.Host}V","ip":"%a","status":%s,"path":"%U","geo":"%{client.geo.country_code}V"}`.
   After configuring the stream, read one delivered record and
   confirm every field the burst rule needs is actually in it: a
   stream missing the host field cannot segment, and the edition
@@ -98,15 +98,53 @@ to get them, and what DDoS controls to check, per provider.
   scope on the one service, recorded by location in the config.
   The Stats API carries no unique visitors and no country cut:
   uniques come from the log store (distinct client addresses), and
-  countries only if the log format carries a geo field; otherwise
-  both print as not available, never estimated.
-- Record the plan in the config's `edge_tier`: the Next-Gen WAF is a
-  separately licensed product, so the tier decides the `edge_posture`
-  finding.
+  countries only if the log format carries a geo field (the
+  `client.geo.country_code` VCL variable, as in the example above);
+  otherwise both print as not available, never estimated.
+  With no log stream configured at all, the disposition is: a
+  period with no error spike grades on the Stats API totals with
+  the lower fidelity named next to the grade; a period with an
+  error spike is a classification-pending edition, because the
+  spike cannot be segmented.
+- Record the plan in the config's `edge_tier` (free text: what the
+  service actually carries, for example "CDN only" or "Next-Gen WAF
+  licensed and attached"): the Next-Gen WAF is a separately
+  licensed product, so the tier decides the `edge_posture` finding.
 - DDoS controls: Fastly's platform absorbs L3/4; the Next-Gen WAF
   (Signal Sciences) is a separate product for L7 rules and rate
   limiting. Verify it is actually attached; a bare CDN config is not a
   WAF, and grades as `edge_posture: cdn-only` until it is.
+
+## Netlify, Vercel, and Bunny
+
+These three are first-class `edge_provider` values. Each is usually
+also the hosting platform, which the config records in `hosting`;
+the edge contract is the same as every provider's: an analytics
+source that segments by host and client address, a visible WAF or
+equivalent control for a `protected` posture, and gaps recorded as
+findings rather than assumed away.
+
+- Netlify starting points: site analytics and server-side log
+  records for totals and status mixes; per-address and per-host
+  cuts for the burst rule come from log drains to your own store
+  where the plan provides them — confirm the drain carries host,
+  client address, and status before the first edition, and treat a
+  missing cut like any other unsegmentable edge (lower fidelity,
+  named). Response headers are set in the platform's header
+  configuration (`_headers` / `netlify.toml`); the platform's
+  firewall/traffic controls are the WAF evidence, verified in the
+  console, not assumed from the plan name.
+- Vercel starting points: the project's analytics and runtime logs
+  for totals; per-address cuts come from log drains to your own
+  store where configured, with the same field confirmation as
+  Netlify. Headers are set in the project's configuration
+  (`vercel.json` / framework config); the WAF and attack-challenge
+  controls are verified in the project settings.
+- Bunny starting points: the CDN's traffic statistics and log
+  delivery (to your own store) for the burst rule's cuts, with the
+  log fields confirmed on one delivered record; the Shield/WAF
+  tier attached to the pull zone is the posture evidence, recorded
+  in `edge_tier`.
 
 ## Akamai, Sucuri, and others
 
@@ -123,7 +161,10 @@ to get them, and what DDoS controls to check, per provider.
 - Sucuri starting points: the Website Firewall dashboard's traffic and
   attack reports are the analytics source; verify its export actually
   segments by host and client address before the first edition, and
-  record the answer in the config notes.
+  record the answer in the config notes. The posture evidence is the
+  firewall's protection status and ruleset state in that dashboard;
+  where the export cannot segment, the edge grades at lower fidelity
+  with the caveat named, exactly as for any unsegmentable edge.
 - An edge recorded as `other` (a regional or homegrown CDN) follows
   this same contract, and the config's `notes` field (required for
   `other`) names what the export is. If the edge cannot segment by

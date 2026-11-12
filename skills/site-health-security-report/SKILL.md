@@ -1,6 +1,6 @@
 ---
 name: site-health-security-report
-description: Produce a graded daily (or weekly, or monthly) health and security report for a website — traffic and errors from the site's own edge analytics, SEO/AEO checker scores, and code-host scanning (dependencies, SAST, secrets) — with evidence behind every figure, a pre-send verification gate, and owner-approved sending. Use when asked to run, set up, or continue a site's health/security report on any stack (Cloudflare, AWS CloudFront, Azure, Fastly, Akamai; GitHub, GitLab, Bitbucket, Azure DevOps, Gitea). Always start with the stack intake in references/stack-intake.md; never assume a vendor.
+description: Produce a graded daily (or weekly, or monthly) health and security report for a website — traffic and errors from the site's own edge analytics, SEO/AEO checker scores, and code-host scanning (dependencies, SAST, secrets) — with evidence behind every figure, a pre-send verification gate, and owner-approved sending. Use when asked to run, set up, or continue a site's health/security report on any stack (Cloudflare, AWS CloudFront, Azure, Fastly, Akamai, Sucuri, Netlify, Vercel, Bunny; GitHub, GitLab, Bitbucket, Azure DevOps, Gitea, Codeberg). Always start with the stack intake in references/stack-intake.md; never assume a vendor.
 ---
 <!--
 SPDX-License-Identifier: MIT
@@ -39,7 +39,8 @@ file is the config of record the tools read). Name the saved file
 ("vault entry X"), never by value. The intake records:
 
 - Edge / CDN / DDoS layer: Cloudflare, AWS CloudFront (+ AWS WAF and
-  Shield), Azure Front Door (+ Azure WAF), Fastly, Akamai, Sucuri, or none.
+  Shield), Azure Front Door (+ Azure WAF), Fastly, Akamai, Sucuri,
+  Netlify, Vercel, Bunny, other (named in the config notes), or none.
 - Code host: GitHub, GitLab, Bitbucket, Azure DevOps, Gitea/Codeberg, or
   other.
 - Hosting / origin: cloud provider, region model, staging setup.
@@ -235,7 +236,14 @@ report together, including that the findings do not contradict the
 configured stack (scanning recorded as 'none' cannot produce findings
 claiming scanning is on; no edge configured cannot produce a protected
 edge posture) and that the report's sender and recipients are the
-config's, copied, not re-typed. Two format rules the check enforces:
+config's, copied, not re-typed. For an edition that is the exact-set
+From/To/Cc header check; a correction carries no header, and there
+check-run instead requires that the correction name no email address
+outside the configured sender and recipients. Where the send has an
+HTML part, the HTML part is validated too, with
+`validate-email report.html findings.json`: both parts of the send
+are mechanically checked against the same findings, never just the
+text part. Two format rules the check enforces:
 the From/To/Cc header sits at the top of the report (it ends at the
 first blank line, and must start within the first 15 lines), in the
 template's one-line shape (labels separated by `·` or `|`), one label

@@ -78,6 +78,7 @@ BASE_CONFIG = {
     "site_name": "Example Co", "primary_host": "example.com",
     "side_hosts": [{"host": "api.example.com", "role": "api"}],
     "edge_provider": "cloudflare", "code_host": "github",
+    "code_host_instance": "saas",
     "code_host_access": "location only: vault entry 'example-co/github-token'",
     "edge_credential": "location only: vault entry 'example-co/cf-analytics'",
     "hosting": "aws", "staging": {"url": "https://staging.example.com", "branch": "staging"},

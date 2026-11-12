@@ -43,7 +43,7 @@ through the adapter for your stack:
 
 | Layer | Supported |
 |---|---|
-| Edge / DDoS | Cloudflare · AWS CloudFront + WAF/Shield · Azure Front Door + WAF · Fastly · Akamai · Sucuri · other (generic contract, note required) · none (log-based, graded honestly) |
+| Edge / DDoS | Cloudflare · AWS CloudFront + WAF/Shield · Azure Front Door + WAF · Fastly · Akamai · Sucuri · Netlify · Vercel · Bunny · other (generic contract, note required) · none (log-based, graded honestly) |
 | Code host | GitHub · GitLab · Bitbucket · Azure DevOps · Gitea/Codeberg · other (generic contract, note required) |
 | Scanning | Dependabot/CodeQL/secret scanning · GitLab SAST/DS/SD · pipeline fallbacks: Semgrep, CodeQL CLI (where licensed), gitleaks, Trivy, OSV-Scanner · commercial: Snyk, SonarQube, Mend, GitGuardian |
 | Staging | Branch-staging on Cloudflare Pages · Vercel · Netlify · Azure Static Web Apps · AWS Amplify / S3+CloudFront |

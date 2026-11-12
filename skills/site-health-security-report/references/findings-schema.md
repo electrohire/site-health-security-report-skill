@@ -49,18 +49,25 @@ are not measurements.
 Scanner severity mapping (when any scanner's severities must be
 folded into the counts — a fallback scanner's vocabulary, or a native
 scanner reporting levels beyond the four, such as GitLab's Info and
-Unknown): scanner "critical"/blocker findings count as
-`critical` only when they are exploitable in production as shipped.
-The same rule governs platform advisories (leg 3's platform counts):
-a vendor "critical" for a feature the deployment does not run is
-recorded as high, and the evidence record states who judged
-exploitability and on what basis (the feature is disabled, the code
-path is unreachable, the affected version is not the deployed one).
-Where the advisory source is the deployment's own publisher, the
-record also names a corroborating source or states that none
-exists; the downgrade is never silent either way;
-otherwise map error/blocker to `high`, warning to `medium`, info/note
-to `low`. OSV-Scanner records carry database severity instead of a
+Unknown). One rule, applied in this order to every finding, from a
+repo scanner and from a platform advisory (leg 3's platform counts)
+alike:
+
+1. A finding the scanner rates **critical or blocker** counts as
+   `critical` only when the affected code or feature is exploitable
+   in production as shipped; otherwise it counts as `high`. A
+   dev-only dependency's "Critical" is therefore `high`, never
+   `critical`, and never dropped. Every such downgrade is a judgment
+   by the operator, and the evidence record states who judged
+   exploitability and on what basis (the feature is disabled, the
+   code path is unreachable, the affected version is not the
+   deployed one); where the advisory source is the deployment's own
+   publisher, the record also names a corroborating source or states
+   that none exists. The downgrade is never silent either way.
+2. Any other level maps by name: error to `high`, warning to
+   `medium`, info/note to `low`.
+
+OSV-Scanner records carry database severity instead of a
 word: when a CVSS score is present, map by score (9.0 and above
 critical, 7.0 and above high, 4.0 and above medium, below that
 low); when only an ecosystem rating word is present, map the word
@@ -85,7 +92,7 @@ the cause named, rather than inventing a zero.
 | `medium`, `low` | int ≥ 0 | Backlog counts; reported, but they do not lower the grade by themselves |
 | `code_scanning_on` | boolean, required | True only if code scanning actually ran on every product repo |
 | `secret_scanning_on` | boolean, required | Same, for secret scanning |
-| `scanners_used` | object | The scanner that actually produced each kind's counts, by config vocabulary name (`dependencies` / `sast` / `secrets`). `check-run` requires it to name the configured scanner for every kind that carries evidence (the `*_on` flag for sast/secrets, measured alert counts for dependencies): a fallback's output is read as the fallback's, never under the native scanner's name |
+| `scanners_used` | object | The scanner that actually produced each kind's counts, by config vocabulary name (`dependencies` / `sast` / `secrets`). `check-run` requires it to name the configured scanner for every kind that carries evidence (the `*_on` flag for sast/secrets, measured alert counts for dependencies): a fallback's output is read as the fallback's, never under the native scanner's name. The values are the config's vocabulary tokens exactly (`gitlab-sast`), never the display names (`GitLab SAST`): display names belong only in the report's Scanners of record line, and putting them here fails check-run on every kind |
 | `secret_alerts_open` | int ≥ 0 | Open secret-scanning alerts |
 | `critical_public_exploit_in_production` | boolean | The F condition |
 | `compromise_confirmed` | boolean, optional | A compromise of the site (defaced or altered content, account takeover, injected code) confirmed this period by the owner, the host, or the platform. Security F. The report does not detect compromise itself; confirmation arrives as a record, like a platform advisory |

@@ -20,13 +20,17 @@ CLI:
   site_health.py validate-config config.json     (JSON is the config of record)
   site_health.py validate-report report.md findings.json [--kind correction]
   site_health.py check-run config.json findings.json report.md [--kind correction]
+  site_health.py validate-email report.html findings.json [--kind correction]
 check-run is the validation of record for an edition: it validates the
 config, the findings, and the report together, including that the
 findings do not contradict the config and that the report's recipients
-and sender match the config.
+and sender match the config. validate-email runs the same report
+validation over the HTML email part's text: the two parts of a send
+are both mechanically checked, never just the text part (round 39).
 Exit code 0 means "ran and passed"; 1 means problems were printed.
 All error paths print a clean ERROR line, never a traceback.
 """
+import html as _html_lib
 import http.client
 import json
 import re
@@ -179,7 +183,10 @@ def check_headers(headers):
         if not m:
             del lower["strict-transport-security"]
             notes.append("Strict-Transport-Security present but carries no max-age; counted as missing")
-        elif int(m.group(1)) == 0:
+        elif not m.group(1).strip("0"):
+            # Zero test without int(): a hostile header can carry a
+            # max-age with thousands of digits, and int() on it raises
+            # past the interpreter's conversion limit (round 39).
             del lower["strict-transport-security"]
             notes.append("Strict-Transport-Security present but max-age=0 (disabled); counted as missing")
     present = [h for h in SECURITY_HEADERS if h in lower]
@@ -301,6 +308,17 @@ def _validate_findings(findings):
     _req_bool(t, "outage_confirmed", "traffic")
     if "repeated_reliability_problems" in t:
         _req_bool(t, "repeated_reliability_problems", "traffic")
+    # Presence-strict for the truthiness-gated fields (round 39): a
+    # falsy mistype (0, "", [], null) must not silently read as false.
+    # classification_pending is what holds the traffic leg ungraded;
+    # compromise_confirmed forces Security F. A serialization slip in
+    # either manufactures a complete, graded run.
+    if "classification_pending" in t:
+        _req_bool(t, "classification_pending", "traffic")
+    if "outage_note" in t and t["outage_note"] is not None \
+            and not isinstance(t["outage_note"], str):
+        raise InputError("traffic.outage_note must be a string when "
+                         f"present, got {t['outage_note']!r}")
     s = findings.get("security")
     if s is None:
         raise InputError("findings.security is missing: a leg that did not run is "
@@ -314,6 +332,8 @@ def _validate_findings(findings):
                              f"(null grades the run incomplete, never clean)")
     _req_bool(s, "code_scanning_on", "security")
     _req_bool(s, "secret_scanning_on", "security")
+    if "compromise_confirmed" in s:
+        _req_bool(s, "compromise_confirmed", "security")
     if _norm_csp(s.get("csp")) not in ("enforcing", "report-only", "missing"):
         raise InputError(f"security.csp must be 'enforcing', 'report-only', or 'missing' "
                          f"(measured, never omitted), got {s.get('csp')!r}")
@@ -507,15 +527,25 @@ def grade_traffic(f):
         return "F", causes
     if f.get("classification_pending"):
         _req_bool(f, "classification_pending", "traffic")
-        if classification is not None:
-            raise InputError("traffic.classification_pending is true but a "
-                             "traffic.burst record is present: the "
-                             "classification has landed, so clear the flag "
-                             "and grade on the record")
+        # classification is None here: the pending-with-record
+        # contradiction raised above, before the outage return.
         return None, ["an error spike's classification was still pending "
                       "at send time; the traffic leg is not graded on an "
                       "unsegmented share"]
     share = _req_share(f, "five_xx_share", "traffic")
+    if classification is None and share > 0.005:
+        # The schema requires a burst segmentation record whenever the
+        # raw 5xx share is above the B band (0.5%). The findings carry
+        # the residual (post-segmentation) share, and a residual above
+        # the band proves the raw share was above it too; with no
+        # record, the leg cannot be graded as a complete measurement
+        # (round 39: a 30% share with no record graded D, complete).
+        return None, [f"server errors were {share:.1%} of traffic with "
+                      f"no burst segmentation record: the record is "
+                      f"required whenever the raw share is above the "
+                      f"B band, and a residual this high proves the raw "
+                      f"share was too; the traffic leg is not graded "
+                      f"until the record is supplied"]
     share404 = _req_share(f, "four_04_share", "traffic")
     grade = "A"
     if share > 0.02:
@@ -585,11 +615,10 @@ REQUIRED_CONFIG_FIELDS = [
 ]
 EMPTY_NOT_ALLOWED = [f for f in REQUIRED_CONFIG_FIELDS if f != "standing_items"]
 VALID_EDGE = {"cloudflare", "aws-cloudfront", "azure-front-door", "fastly",
-              "akamai", "sucuri", "other", "none"}
+              "akamai", "sucuri", "netlify", "vercel", "bunny",
+              "other", "none"}
 VALID_CODEHOST = {"github", "gitlab", "bitbucket", "azure-devops",
                   "gitea", "codeberg", "other"}
-# Hosts with no native Dependabot / CodeQL / secret-scanning equivalents.
-NON_NATIVE_HOSTS = {"bitbucket", "azure-devops", "gitea", "codeberg"}
 KNOWN_CONFIG_KEYS = set(REQUIRED_CONFIG_FIELDS) | {
     "code_host_instance", "code_host_addons", "code_host_access",
     "code_host_ci", "edge_tier", "notes", "app_platform",
@@ -599,13 +628,13 @@ KNOWN_CONFIG_KEYS = set(REQUIRED_CONFIG_FIELDS) | {
 # tool name in the config would otherwise certify coverage that does not
 # exist. "none" is always available (it grades as a finding).
 RECOGNIZED_SCANNING = {
-    "dependencies": {"none", "dependabot", "renovate", "osv-scanner", "trivy",
+    "dependencies": {"none", "dependabot", "osv-scanner", "trivy",
                      "gitlab-dependency-scanning", "ghazdo-dependency-scanning",
-                     "snyk", "mend", "sonarqube", "npm-audit", "pip-audit",
+                     "snyk", "mend", "npm-audit", "pip-audit",
                      "cargo-audit", "bundler-audit", "composer-audit",
-                     "owasp-dependency-check"},
+                     "owasp-dependency-check", "grype"},
     "sast": {"none", "codeql", "codeql-cli", "gitlab-sast", "ghazdo-codeql",
-             "semgrep", "sonarqube", "snyk", "deepsource"},
+             "semgrep", "sonarqube", "snyk", "deepsource", "checkov"},
     "secrets": {"none", "secret-scanning", "gitlab-secret-detection",
                 "ghazdo-secret-scanning", "gitleaks", "trufflehog",
                 "gitguardian", "snyk"},
@@ -619,6 +648,22 @@ GITHUB_ONLY_SERVICES = {
 
 def _scan_value(v):
     return str(v).strip().lower()
+
+
+_HOST_LABEL = re.compile(r"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$", re.I)
+
+
+def _hostname_problem(value):
+    """A hostname as the burst rule and the report key on it: exact
+    text, no padding, label-shaped parts (round 39: ' example.com ',
+    'not a host!!!' and '!!!' all validated, and the primary host
+    could also be listed as its own side host)."""
+    if not isinstance(value, str) or value != value.strip() \
+            or not value or len(value) > 253:
+        return "must be a hostname without padding or spaces"
+    if any(not _HOST_LABEL.match(part) for part in value.split(".")):
+        return "must be dot-separated hostname labels (letters, digits, hyphens)"
+    return None
 
 
 def validate_config(cfg):
@@ -652,19 +697,39 @@ def _validate_config(cfg):
     if cfg.get("code_host") and _scan_value(cfg["code_host"]) not in VALID_CODEHOST:
         errors.append(f"code_host '{cfg['code_host']}' is not a known adapter "
                       f"(one of {sorted(VALID_CODEHOST)})")
-    if cfg.get("primary_host") is not None and not isinstance(cfg["primary_host"], str):
-        errors.append("primary_host must be a hostname string")
+    if cfg.get("primary_host") is not None:
+        problem = _hostname_problem(cfg["primary_host"])
+        if problem:
+            errors.append(f"primary_host {problem}, got {cfg['primary_host']!r}")
     instance = cfg.get("code_host_instance")
     if instance is not None and _scan_value(instance) not in ("saas", "self-managed"):
         errors.append("code_host_instance must be 'saas' or 'self-managed'")
-    if _scan_value(cfg.get("code_host", "")) in ("gitlab", "azure-devops", "gitea", "other") \
+    if _scan_value(cfg.get("code_host", "")) in ("github", "gitlab", "bitbucket",
+                                                 "azure-devops", "gitea", "other") \
             and instance is None:
         warnings.append("code_host_instance is not recorded (saas vs self-managed "
-                        "changes which scanners and tiers apply)")
+                        "changes which scanners and tiers apply: GitHub.com vs "
+                        "Enterprise Server, Bitbucket Cloud vs Data Center, "
+                        "GitLab SaaS vs self-managed)")
+    if _scan_value(cfg.get("code_host", "")) == "codeberg" \
+            and _scan_value(cfg.get("code_host_ci", "")) == "gitea-actions":
+        warnings.append("code_host_ci is 'gitea-actions' on codeberg: Codeberg does "
+                        "not run Gitea Actions for all projects (its CI is "
+                        "Woodpecker); record the CI the instance actually has")
     for provider_field in ("edge_provider", "code_host"):
-        if _scan_value(cfg.get(provider_field, "")) == "other" and not str(cfg.get("notes") or "").strip():
-            errors.append(f"{provider_field} is 'other': the notes field must say what "
-                          f"the provider actually is (the skill has no adapter for it)")
+        if _scan_value(cfg.get(provider_field, "")) == "other":
+            notes = str(cfg.get("notes") or "").strip()
+            # A placeholder names nothing (round 39): '.', 'none',
+            # 'unknown', 'n/a', 'x', 'tbd', 'see docs' all passed the
+            # bare non-empty test while saying what the provider is not.
+            placeholder = notes.lower().strip(" .!-_") in (
+                "", "none", "unknown", "n/a", "na", "x", "tbd", "todo",
+                "see docs", "see above", "other", "custom", "self hosted",
+                "self-hosted", "in house", "in-house")
+            if placeholder or len(notes) < 3:
+                errors.append(f"{provider_field} is 'other': the notes field must say what "
+                              f"the provider actually is (the skill has no adapter for it); "
+                              f"a placeholder ('{notes or 'empty'}') names nothing")
     cred = _scan_value(cfg.get("edge_credential", ""))
     if _scan_value(cfg.get("edge_provider", "")) == "none" and cred and not cred.startswith("none"):
         warnings.append("edge_provider is 'none' but edge_credential names a credential; "
@@ -710,6 +775,13 @@ def _validate_config(cfg):
                                      for r in repos)):
         errors.append("repositories must be a list of repository paths "
                       "(strings)")
+    elif isinstance(repos, list):
+        for r in repos:
+            if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._/-]*", r.strip()) \
+                    or r.strip() != r:
+                errors.append(f"repositories entry {r!r} is not a repository "
+                              f"path (owner/name characters, no padding or spaces)")
+                break
     hosts = cfg.get("side_hosts")
     if hosts is not None:
         bad_host = not isinstance(hosts, list)
@@ -724,6 +796,16 @@ def _validate_config(cfg):
             errors.append("side_hosts must be a list of {host, role} "
                           "objects, each with a host (the burst rule "
                           "segments errors by them)")
+        else:
+            for h in hosts:
+                problem = _hostname_problem(h["host"])
+                if problem:
+                    errors.append(f"side_hosts host {problem}, got {h['host']!r}")
+                elif isinstance(cfg.get("primary_host"), str) \
+                        and h["host"].lower() == cfg["primary_host"].lower():
+                    errors.append("side_hosts lists the primary host as its own "
+                                  "side host; a primary-host outage is established "
+                                  "by the burst record, not the side-host path")
     owners = cfg.get("owners")
     if owners is not None and (not isinstance(owners, dict)
                                or any(not isinstance(v, str)
@@ -822,6 +904,24 @@ def _validate_config(cfg):
                           f"host scanner, the pipeline fallback, a commercial scanner, "
                           f"or 'none'")
             continue
+        if kind == "dependencies" and value == "renovate":
+            # Round 39: the adapters have always said this; the
+            # validator certified the opposite. Renovate opens update
+            # PRs; it produces no vulnerability counts to grade.
+            errors.append("renovate updates dependencies but does not detect "
+                          "vulnerabilities, so it cannot be the dependencies "
+                          "scanner of record: record the detection scanner that "
+                          "produces the counts (osv-scanner, trivy, the host's "
+                          "own, or a commercial scanner), and note renovate as "
+                          "the update tool in the config notes")
+            continue
+        if kind == "dependencies" and value == "sonarqube":
+            errors.append("sonarqube is a SAST/quality engine, not a dependency "
+                          "vulnerability scanner of record: record it under "
+                          "scanning.sast, and name the dependency detection "
+                          "scanner (osv-scanner, trivy, dependabot, or a "
+                          "commercial scanner) here")
+            continue
         if value not in RECOGNIZED_SCANNING[kind]:
             errors.append(f"scanning.{kind} '{scanning.get(kind)}' is not a recognized "
                           f"tool name (one of {sorted(RECOGNIZED_SCANNING[kind])}); name "
@@ -904,7 +1004,8 @@ SECTION_GRADE_PATTERNS_BARE = [
     ("security", re.compile(r"(?m)^(?:<h[1-6][^>]*>)?[#\s>*_.\d-]*(?:section\s*:\s*)?security\s*(?:&|and|-|:|\s|—|–)[^\n]*?[—–:·-]?\s*([A-Fa-f])\s*(?:</h[1-6]>)?\s*$")),
 ]
 OVERALL_PATTERN = re.compile(
-    r"overall grade\s*(?::|=|—|–|-)?\s*(?:is\s+)?(?:an?\s+)?(?:<[^>]+>\s*)?([A-Fa-f])\b")
+    r"overall grade\s*(?::|=|—|–|-)?\s*"
+    r"(?:(?:is|was|of|has been|have been|been)\s+)?(?:an?\s+)?(?:<[^>]+>\s*)?([A-Fa-f])\b")
 CORRECTED_OVERALL_PATTERN = re.compile(r"corrected overall grade is\s+([A-Fa-f])\b")
 CORRECTED_GRADES_LINE = re.compile(
     r"corrected grades\s*[:—–-]?\s*[^\n]*?traffic\s*(?:&|and)\s*reliability\s*[:—–-]?\s+([A-Fa-f]|not available)\b"
@@ -923,6 +1024,11 @@ def _dedupe(items):
 
 def validate_report(text, findings=None, kind="edition"):
     problems = []
+    # Fenced code blocks are quotation, not the report's own apparatus
+    # (round 39): the record-line check already ignored them; a header,
+    # grade line, or required section inside a fence labelled 'example'
+    # must not satisfy the edition's own checks.
+    text = re.sub(r"```.*?```", "", text, flags=re.S)
     low = text.lower()
     # Emphasis and markup around a grade letter are presentation, not
     # a different statement: normalize them away before pattern
@@ -970,9 +1076,36 @@ def validate_report(text, findings=None, kind="edition"):
                                         f"compute {key} {want_grade or 'not available'}"
                                         f", the correction states "
                                         f"{stated or 'not available'}")
-            if not expected["complete"] and "incomplete" not in low:
-                problems.append("the corrected findings grade is incomplete, but the "
-                                "correction does not present it as incomplete")
+            # A correction need not carry section headings, but any it
+            # does carry are checked like an edition's (round 39: a
+            # correction whose every section heading said 'grade A'
+            # against corrected F passed, because only the two
+            # corrected lines were ever read).
+            all_patterns = (SECTION_GRADE_PATTERNS + SECTION_GRADE_PATTERNS_END
+                            + SECTION_GRADE_PATTERNS_BARE)
+            for pat_key in ("traffic", "seo_aeo", "security"):
+                want_grade = expected[pat_key]
+                found = [g for k, pattern in all_patterns if k == pat_key
+                         for g in pattern.findall(low)]
+                for g in found:
+                    if want_grade is None:
+                        problems.append(f"section grade contradiction: the "
+                                        f"{pat_key} section states a letter "
+                                        f"grade, but the corrected leg is "
+                                        f"ungraded (not available)")
+                    elif g.upper() != want_grade:
+                        problems.append(f"section grade contradiction: the "
+                                        f"{pat_key} section states grade "
+                                        f"{g.upper()}, the corrected findings "
+                                        f"compute {want_grade}")
+            if not expected["complete"] and not re.search(r"\(incomplete\s*:", low):
+                # The template's suffix is the presentation of record;
+                # the bare word anywhere in the text satisfied the old
+                # check, including in an unrelated sentence (round 39).
+                problems.append("the corrected findings grade is incomplete, but "
+                                "the correction does not present it as incomplete "
+                                "in the template's form: append '(incomplete: "
+                                "<leg> not available)' to the Corrected grades line")
         return _dedupe(problems)
     for section in REQUIRED_SECTIONS:
         if section not in low:
@@ -1121,6 +1254,15 @@ def validate_run(cfg, findings, report_text, kind="edition"):
             problems.append(f"findings scanners_used names a {kind_key} "
                             f"scanner but the config records {kind_key} "
                             f"scanning as 'none'")
+        if _asserted and _asserted != "none" \
+                and configured not in ("", "none") and _asserted != configured:
+            # Identity holds for inactive kinds too (round 39): a
+            # findings file that names a different scanner than the
+            # config for a kind that happened to be dark this edition
+            # still describes a different reality than the config.
+            problems.append(f"scanner identity mismatch: config records "
+                            f"{kind_key} '{configured}' but findings say "
+                            f"'{_asserted}' ran")
         if active[kind_key] and configured == "none":
             problems.append(f"findings carry {kind_key} evidence but the "
                             f"config records {kind_key} scanning as 'none'")
@@ -1143,16 +1285,33 @@ def validate_run(cfg, findings, report_text, kind="edition"):
         problems.append("config/findings contradiction: an edge provider is "
                         "configured but findings claim edge_posture 'none'")
     # Editions only (a correction is a short notice, not a full
-    # edition: it carries no header block and no scanner sections, and
-    # its recipients are governed by the send discipline, not by a
-    # header in the file): the report must name each configured
-    # scanners on its 'Scanners of record:' line (the credit of record,
+    # edition: it carries no header block and no scanner sections;
+    # corrections get the address-set check in the else branch below
+    # instead): the report must name each configured
+    # scanner on its 'Scanners of record:' line (the credit of record,
     # cross-checked word by word against the configured scanners), and
     # its header's address sets must equal the config's exactly: no
     # swaps, no additions, no prose-only presence.
     if kind != "correction":
         problems.extend(_record_line_problems(report_text, scanning))
         problems.extend(_header_problems(cfg, report_text))
+    else:
+        # Corrections carry no header block, so the edition's exact-set
+        # header check cannot run; what can be checked mechanically is
+        # that a correction names no address outside the configured
+        # set (round 39: a correction 'Sent to: attacker@evil.example'
+        # passed, because recipients were never checked at all).
+        allowed = _emails(str(cfg.get("sender") or ""))
+        recips = cfg.get("recipients") or {}
+        allowed |= _emails(", ".join(recips.get("to") or []))
+        allowed |= _emails(", ".join(recips.get("cc") or []))
+        named = _emails(re.sub(r"```.*?```", "", report_text, flags=re.S))
+        foreign = sorted(named - allowed)
+        if foreign:
+            problems.append("correction names address(es) outside the configured "
+                            f"sender and recipients: {foreign}: a correction is "
+                            f"sent to the edition's configured recipients, never "
+                            f"re-typed or widened")
     return _dedupe(problems), warnings
 
 
@@ -1182,6 +1341,8 @@ SCANNER_DISPLAY_ALIASES = {
     "bundler-audit": ["bundler audit"],
     "composer-audit": ["composer audit"],
     "owasp-dependency-check": ["owasp dependency check", "dependency check"],
+    "grype": ["grype"],
+    "checkov": ["checkov"],
 }
 
 
@@ -1257,6 +1418,25 @@ def _line_names_scanner(line, token):
         if any(_phrase_present(words, p) for p in phrases):
             return True
     return False
+
+
+def _attribution_denied(segment):
+    """'X was not performed by Y' denies Y; it does not credit Y. The
+    credited name is extracted after the last ' by ', which throws the
+    negation away, so denial is tested on the whole segment (round 39:
+    'dependency scanning was not performed by GitLab Dependency
+    Scanning' passed as that scanner's credit, and the honest denial
+    was flagged as a credit on a 'none' kind). 'Not only ... by' is
+    the affirming construction and is removed first."""
+    low = (segment or "").lower().replace("not only", "")
+    return bool(re.search(r"\b(not|never|no|n't)\b[^.;]*\bby\b", low))
+
+
+def _is_role_only_name(text):
+    """A credited name that is only the kind's role phrase ('Dependency
+    Scanning', 'SAST', 'Secret Detection') names no scanner at all
+    (round 39)."""
+    return " ".join(_words(text)) in _ROLE_ONLY_NAMES
 
 
 def _credited_name(segment):
@@ -1339,7 +1519,8 @@ def _record_line_problems(report_text, scanning):
                 attributions = [seg for seg in role_segments
                                 if " by " in seg.lower() or ":" in seg
                                 or "(" in seg]
-                targets = [_credited_name(seg) for seg in attributions] \
+                targets = [_credited_name(seg) for seg in attributions
+                           if not _attribution_denied(seg)] \
                     if attributions else role_segments
                 credited_hit = None
                 for t in targets:
@@ -1367,10 +1548,19 @@ def _record_line_problems(report_text, scanning):
             attributions = [seg for seg in role_segments
                             if " by " in seg.lower() or ":" in seg
                             or "(" in seg]
-            targets = [_credited_name(seg) for seg in attributions] \
-                if attributions else \
-                ([" ".join(role_segments)] if role_segments else [record])
-            if not all(_line_names_scanner(t, configured) for t in targets):
+            if attributions:
+                # A denied attribution, or one crediting only the role
+                # phrase, names no scanner (round 39).
+                named_ok = all(
+                    not _attribution_denied(seg)
+                    and not _is_role_only_name(_credited_name(seg))
+                    and _line_names_scanner(_credited_name(seg), configured)
+                    for seg in attributions)
+                targets = None
+            else:
+                targets = [" ".join(role_segments)] if role_segments else [record]
+                named_ok = all(_line_names_scanner(t, configured) for t in targets)
+            if not named_ok:
                 problems.append(
                     f"a Scanners of record line does not name the configured "
                     f"{kind_key} scanner ('{configured}'), in vocabulary or "
@@ -1441,6 +1631,9 @@ def _header_problems(cfg, report_text):
     address-shaped lines only, so body prose after the header can
     neither pollute a set nor satisfy one.
     """
+    # A header quoted inside a fenced example is not the report's
+    # header (round 39, same fence discipline as validate_report).
+    report_text = re.sub(r"```.*?```", "", report_text, flags=re.S)
     all_lines = report_text.splitlines()
     start = next((i for i, ln in enumerate(all_lines[:15])
                   if re.search(r"(?i)(?:^|[·|\n])\s*(?:[-*•>]\s*)?"
@@ -1494,9 +1687,34 @@ def _header_problems(cfg, report_text):
 
 # ---------------------------------------------------------------- CLI
 
+def _html_to_text(markup):
+    """The readable text of an HTML email part: script/style bodies
+    dropped, block tags become line breaks (the report patterns are
+    line-anchored), all other tags become spaces, entities unescaped."""
+    text = re.sub(r"(?is)<(script|style)[^>]*>.*?</\1>", " ", markup)
+    text = re.sub(r"(?i)<\s*(br|/p|/div|/tr|/h[1-6]|/li|/table)\s*[^>]*>", "\n", text)
+    text = re.sub(r"<[^>]+>", " ", text)
+    return _html_lib.unescape(text)
+
+
 def _reject_constant(name):
     raise InputError(f"invalid JSON constant {name}: NaN and Infinity are not "
                      f"measurements; use a number or null")
+
+
+def _no_duplicate_keys(pairs):
+    """object_pairs_hook: a duplicated key is an input error, never a
+    silent last-wins resolution (round 39: 'critical: 99' followed by
+    'critical: 0' in one object graded A on the second value)."""
+    obj = {}
+    for key, value in pairs:
+        if key in obj:
+            raise InputError(f"duplicate key {key!r} in a JSON object: "
+                             f"a config or findings file states each field "
+                             f"once; two values for one field is an "
+                             f"ambiguous record, not a measurement")
+        obj[key] = value
+    return obj
 
 
 def _load_json(path):
@@ -1505,7 +1723,8 @@ def _load_json(path):
                          "is JSON: convert the file to JSON (same fields) and re-run.")
     try:
         with open(path, encoding="utf-8-sig") as fh:
-            data = json.load(fh, parse_constant=_reject_constant)
+            data = json.load(fh, parse_constant=_reject_constant,
+                             object_pairs_hook=_no_duplicate_keys)
     except FileNotFoundError:
         raise InputError(f"file not found: {path}")
     except (OSError, UnicodeDecodeError) as e:
@@ -1622,6 +1841,27 @@ def main(argv):
                           "validation: run check-run before sending")
                 else:
                     print("OK: report structure and grades agree with the findings")
+            return 1 if problems else 0
+        if cmd == "validate-email" and len(argv) in (3, 4, 5, 6):
+            kind, args = _split_kind(argv[2:])
+            if len(args) > 2:
+                print(__doc__)
+                return 1
+            try:
+                markup = open(args[0], encoding="utf-8-sig").read()
+            except FileNotFoundError:
+                raise InputError(f"file not found: {args[0]}")
+            except (OSError, UnicodeDecodeError) as e:
+                raise InputError(f"cannot read {args[0]}: {e}")
+            except IndexError:
+                print(__doc__)
+                return 1
+            findings = _load_json(args[1]) if len(args) > 1 else None
+            problems = validate_report(_html_to_text(markup), findings, kind=kind)
+            for p in problems:
+                print("PROBLEM:", p)
+            if not problems:
+                print("OK: HTML email part's grades agree with the findings")
             return 1 if problems else 0
         if cmd == "check-run" and len(argv) in (5, 6, 7):
             kind, args = _split_kind(argv[2:])

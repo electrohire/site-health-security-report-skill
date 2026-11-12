@@ -9,6 +9,71 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+Round 39 (post-release red team, 2026-11-12) fixes and stack-proof
+work; not yet released — a release is stamped only on the owner's
+explicit permission.
+
+### Added
+
+- Netlify, Vercel, and Bunny as first-class edge providers, with
+  adapter starting points, joining Cloudflare, CloudFront, Azure
+  Front Door, Fastly, Akamai, and Sucuri.
+- A per-stack simulation suite (tests/test_stack_sims.py): every
+  edge × code-host combination the validator accepts is exercised
+  end-to-end through the real CLI (validate-config, grade, burst,
+  check-run) against a simulated deployment on disk, and every
+  host's impossible-scanner claims are rejected in simulation.
+- `validate-email`: the HTML email part is now mechanically
+  validated against the findings, like the text part.
+- Grype (dependencies) and Checkov (SAST) are recordable scanners,
+  matching the scanning-fallbacks table that already recommended
+  them.
+
+### Fixed
+
+- Duplicate keys in a JSON config/findings file are an input error;
+  they previously resolved silently last-wins and could manufacture
+  grades.
+- A hostile Strict-Transport-Security max-age with thousands of
+  digits crashed the header check with a traceback; the zero test no
+  longer converts with `int()`.
+- `classification_pending`, `compromise_confirmed`, and
+  `outage_note` are presence-strict: a falsy mistype (0, "", null)
+  is an input error, never a silent `false`.
+- A residual 5xx share above the B band with no burst segmentation
+  record now leaves the traffic leg ungraded (incomplete) instead of
+  grading as a complete measurement.
+- Scanner identity is enforced for inactive kinds too: findings
+  naming a different scanner than the config are a check-run
+  problem even when that kind was dark this edition.
+- Corrections are recipient-checked: a correction naming any email
+  address outside the configured sender and recipients fails
+  check-run. Correction section headings are checked against the
+  corrected grades, and an incomplete corrected grade must carry
+  the template's "(incomplete: <leg> not available)" suffix.
+- Prose grade forms ("overall grade of A", "grade was A") are
+  checked like the anchored forms; fenced example blocks no longer
+  satisfy an edition's grade apparatus or header.
+- The Scanners of record line: a denied attribution ("was not
+  performed by X") no longer counts as X's credit (and an honest
+  denial is no longer flagged as a credit on a 'none' kind), and
+  crediting only the role phrase ("by Dependency Scanning") names
+  no scanner.
+- Renovate can no longer be recorded as the dependencies scanner
+  (it updates dependencies; it does not detect vulnerabilities),
+  and SonarQube is no longer accepted as a dependency scanner —
+  both match what the adapters have always said.
+- 'other' providers reject placeholder notes ('.', 'unknown',
+  'tbd', ...); hostnames and repository paths are shape-checked,
+  and the primary host cannot be listed as its own side host.
+- Docs: the GitLab severity-mapping rule is stated as one
+  unambiguous procedure, GitLab artifact counting rules are
+  specified, the Fastly adapter names its geo field and no-stream
+  disposition, and the AEE claims pack no longer describes the
+  released skill as pre-release.
+
 ## [1.0.0] - 2026-11-11
 
 First release. The skill was developed in public as a pre-release

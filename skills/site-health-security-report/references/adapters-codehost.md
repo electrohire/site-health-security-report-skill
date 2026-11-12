@@ -59,10 +59,34 @@ incident note like any other.
   `gitlab-secret-detection`; the report's Scanners of record line
   credits them as GitLab Dependency Scanning, GitLab SAST, and
   GitLab Secret Detection.
-- Activity: project events and pipeline APIs.
+- Activity: project events and pipeline APIs — in API terms,
+  `GET /projects/:id/pipelines` for pipeline runs in the period and
+  `GET /projects/:id/repository/commits` for commits; a deploy is a
+  successful pipeline on the default branch (or the instance's deploy
+  job, where one is named in the config notes).
 - Reading the artifacts: save the pipeline's report files
   (`gl-dependency-scanning-report.json`, `gl-sast-report.json`,
   `gl-secret-detection-report.json`) as the leg's evidence records.
+- Counting the artifacts (the same reads on every GitLab deployment,
+  so two deployments of this stack stay comparable): the artifacts of
+  record are from the latest completed pipeline on the default branch
+  that finished inside the covering period (or, when none finished in
+  the period, the most recent one before it, with its date stated in
+  the evidence ledger). The counts are the entries in each file's
+  `vulnerabilities` array, folded through the findings-schema
+  severity mapping. Dismissals and resolutions live in the
+  Vulnerability Report, not in the artifacts: where the instance's
+  tier exposes them (the Vulnerability Report UI/API), entries
+  dismissed or resolved before the period are excluded and the
+  exclusion is recorded in the evidence ledger; where the tier
+  exposes no dismissal state, nothing is excluded and the edition
+  says so. Counts aggregate across all configured repositories by
+  summation; the per-project counts stay in the evidence ledger.
+- When the instance's tier does not run these scanners at all, the
+  pipeline fallback stack in `scanning-fallbacks.md` applies to
+  GitLab exactly as it does to Bitbucket: run the fallback jobs in
+  GitLab CI and record the fallback tools in the config, not the
+  GitLab names.
 
 ## Bitbucket Cloud
 
