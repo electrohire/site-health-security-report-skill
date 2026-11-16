@@ -9,6 +9,20 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- The evidence ledger template and the SKILL.md template list no
+  longer call it the "AEE evidence ledger". A fleet-wide owner rule
+  (2026-11-16) bars requirement numbers and development references
+  from every user-facing surface; the audit found the report,
+  correction, and email templates already clean, and this was the
+  one development-methodology reference left in a shipped
+  template. A regression test now sweeps all four user-facing
+  templates for spec numbers, claim ids, task ids, register ids,
+  and methodology framing.
+
 ## [1.0.1] - 2026-11-12
 
 Round 39 (post-release red team, 2026-11-12) fixes and stack-proof

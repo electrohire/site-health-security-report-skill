@@ -1,7 +1,7 @@
 <!--
 SPDX-License-Identifier: MIT
 SPDX-FileCopyrightText: 2026 ElectroHire Inc.
-AEE evidence ledger for one edition. Every claim in the report traces
+Evidence ledger for one edition. Every claim in the report traces
 to a record in the run's evidence folder; the falsifier states what
 would prove the claim wrong. Copy per edition: evidence-ledger-<date>.md
 -->

@@ -258,7 +258,7 @@ the pre-send gate's job, against the evidence records.
 Templates: `templates/report-template.md` (white-label: brand name,
 colors, recipients, and owner names all come from the config),
 `templates/report-email.html`, `templates/correction-template.md`, and
-`templates/evidence-ledger.example.md` (the AEE evidence ledger: every
+`templates/evidence-ledger.example.md` (the evidence ledger: every
 claim in the report traces to a record, with its falsifier).
 
 ## Staging websites the same way
