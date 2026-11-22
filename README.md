@@ -10,7 +10,7 @@ SPDX-FileCopyrightText: 2026 ElectroHire Inc.
 [![Last commit](https://img.shields.io/github/last-commit/electrohire/site-health-security-report-skill)](https://github.com/electrohire/site-health-security-report-skill/commits/main)
 [![Open issues](https://img.shields.io/github/issues/electrohire/site-health-security-report-skill)](https://github.com/electrohire/site-health-security-report-skill/issues)
 
-[![Tests](https://img.shields.io/badge/tests-354%20passing-brightgreen.svg)](https://github.com/electrohire/site-health-security-report-skill/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-356%20passing-brightgreen.svg)](https://github.com/electrohire/site-health-security-report-skill/actions/workflows/ci.yml)
 [![CLI line coverage](https://img.shields.io/badge/CLI%20line%20coverage-100%25-brightgreen.svg)](#)
 [![Python](https://img.shields.io/badge/python-stdlib%20only-blue.svg)](#)
 [![Stacks proven in simulation](https://img.shields.io/badge/stack%20sims-88%20combinations-brightgreen.svg)](#)
@@ -21,7 +21,7 @@ This is a daily health and security report method designed by
 ElectroHire, generalized to any stack, published as an open agent
 skill.
 
-**Status: released, version 1.0.1 (2026-11-12).** The skill was
+**Status: released, version 1.0.2 (2026-11-21).** The skill was
 iterated against red teams and simulated stacks until a complete
 verification round (round 38) returned zero findings, and released
 as v1.0.0 on the owner's approval. Version 1.0.1 is the round-39
@@ -29,8 +29,12 @@ patch: a post-release red team returned real findings (duplicate
 JSON keys, correction recipient checking, prose grade forms),
 every one was fixed, Netlify/Vercel/Bunny joined the edge
 adapters, and the suite now proves every supported stack
-combination in simulation at 100% CLI line coverage. Versioning
-is semantic, with a changelog kept in Keep a Changelog format.
+combination in simulation at 100% CLI line coverage. Version
+1.0.2 removes the one development-methodology reference left in
+a shipped template and pins a regression sweep that keeps every
+user-facing template free of requirement numbers and development
+references. Versioning is semantic, with a changelog kept in
+Keep a Changelog format.
 
 The report watches, every edition:
 
